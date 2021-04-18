@@ -6,4 +6,10 @@ router.get('/',async (ctx,next)=>{
 router.get('/home',async (ctx,next)=>{
   ctx.body='home'
 })
+// router.get('/',async (ctx,next)=>{
+//   ctx.body={
+//     status:'1',
+//     msg:'errot'
+//   }
+// })
 module.exports= router

@@ -1,9 +1,9 @@
 const UserService =require('../sever/user')
-
+const {Sequelize} =require('sequelize')
 module.exports={
   addUser: async (ctx,next) =>{
     let {username,password} = ctx.request.query
-    await UserService.createUser({"id":'2',"username":username,"password":password})
+    await UserService.createUser({"username":username,"password":password})
     ctx.body= {
       status:200,
       msg:'success',

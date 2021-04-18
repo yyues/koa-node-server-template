@@ -1,12 +1,14 @@
 const Koa = require('koa2');
 const app = new Koa();
 const bodyParser = require('koa-bodyparser');
+const cors=require('koa-cors')
 //使用router
 const index=require('./router/index')
 const user=require('./router/user')
 
 const {Base} =require('./config/index')
 app.use(bodyParser());
+app.use(cors())
 
 // logger
 app.use(async (ctx, next) => {

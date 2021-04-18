@@ -1,4 +1,5 @@
 const db = require('../db/index')
+const {Sequelize} = require('sequelize')
 const {DataTypes} =require('sequelize')
 
 
@@ -8,7 +9,8 @@ const user = db.define('user',{
   id:{
     type: DataTypes.UUID,
     primaryKey:true,
-    unique: true
+    unique: true,
+    defaultValue: Sequelize.UUIDV1
   },
   username:{
     type: DataTypes.STRING(8),
