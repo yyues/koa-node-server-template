@@ -1,14 +1,27 @@
 const Koa = require('koa2');
-const app = new Koa();
-const bodyParser = require('koa-bodyparser');
-const cors=require('koa-cors')
-//使用router
-const index=require('./router/index')
-const user=require('./router/user')
-
 const {Base} =require('./config/index')
+const app = new Koa();
+
+//bodyParser
+const bodyParser = require('koa-bodyparser');
 app.use(bodyParser());
+
+// cors 跨域
+const cors=require('koa-cors')
 app.use(cors())
+
+// passport 验证
+const passport = require('koa-passport')
+app.use(passport.initialize())
+app.use(passport.session())
+require('./config/passport')(passport)
+
+// Sessions
+// const session = require('koa-session')
+// app.keys = ['secret']
+// app.use(session({}, app))
+
+
 
 // logger
 app.use(async (ctx, next) => {
@@ -20,6 +33,8 @@ app.use(async (ctx, next) => {
 
 
 //router
+const index=require('./router/index')
+const user=require('./router/user')
 app.use(index.routes())
 app.use(user.routes())
 

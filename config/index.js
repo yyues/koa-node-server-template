@@ -7,7 +7,9 @@ const config ={
   host:'localhost'
 }
 const Base={
-  port: '3000'
+  port: '3000',
+  secretOrKey: 'secret',
+  tokenExpiresIn: 3600 * 24 * 7
 }
 module.exports={
   config,Base
