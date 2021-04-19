@@ -1,5 +1,6 @@
 const user =require('../model/user')
 const { Sequelize } = require('sequelize')
+
 class UserService {
   //根据id 值查找
   async getUserById(id) {
@@ -9,9 +10,13 @@ class UserService {
       }
     })
   }
+  // 查找所有
+  async getAll(){
+    return user.findAll()
+  }
   //根据name查找
   async getUserByUserName(name){
-     return user.findAll({
+     return await user.findAll({
       where: {
         username: name
       }

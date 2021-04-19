@@ -2,6 +2,8 @@ const router =require('koa-router')()
 const Result=require('../util/result')
 const path =require('path')
 const fs =require('fs')
+const getCode =require('../config/verification')
+// 图片上传接口
 router.post('/upload',ctx=>{
     const file = ctx.request.files.file
     if(!file){
@@ -33,5 +35,13 @@ router.post('/upload',ctx=>{
             ctx.body=Result.success(after_url,'上传文件成功')
         }
     }
+})
+// 验证码生成接口
+router.get('/captcha',ctx =>{
+
+    const code = getCode()
+    ctx.body = Result.success(code.data,'获取验证码成功')
+    //code.test.toLowerCase() 该数据为验证码内容
+
 })
 module.exports=router

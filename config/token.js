@@ -1,3 +1,8 @@
+/*
+* @ author yaoyue
+* @createTime 20210419
+* @des token生成器
+* */
 const jwt = require('jsonwebtoken')
 const { Base} =require('./index')
 

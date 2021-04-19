@@ -1,15 +1,16 @@
 const UserService =require('../sever/user')
 const isEmpty =require('../util/isEmpty')
 
-const {getOneDbData} =require('../util/json')
+const {getOneDbData,getListDbData} =require('../util/json')
 const Result = require('../util/result')
-const Tool =require('../config/bcrypt')
+const {enCrypto} =require('../config/bcrypt')
 
 module.exports={
   //注册的时候要不要带token？？？
   addUser: async ctx =>{
     let {username,password} = ctx.request.query
-    password=Tool.enbcrypt(password)
+
+    // password=enCrypto(password)
     await UserService.createUser({username,password})
     ctx.body= {
       status:200,
