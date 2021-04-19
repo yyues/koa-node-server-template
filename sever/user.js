@@ -1,5 +1,5 @@
 const user =require('../model/user')
-
+const { Sequelize } = require('sequelize')
 class UserService {
   //根据id 值查找
   async getUserById(id) {
@@ -11,34 +11,31 @@ class UserService {
   }
   //根据name查找
   async getUserByUserName(name){
-    return user.findAll({
+     return user.findAll({
       where: {
         username: name
       }
     })
   }
   //新建用户
-  async createUser(use) {
-    return user.create(use)
+  async createUser(data) {
+    return user.create(data)
   }
   //更新用户
-  async updateUser(id,use) {
-    const item = await this.getUserById(id)
-    if(item){
-      return  item.update(use)
-    } else {
-      return  new Error('the user is not exist !')
-    }
+  async updateUser(id,data) {
+    return user.update(data,{
+      where :{
+        id:id
+      }
+    })
   }
   //删除用户
   async delUser(id){
-    const item =await this.getUserById(id)
-    if(item){
-      return item.destroy
-    } else {
-      return  new Error('the user is not exist !')
-    }
-
+    return user.destroy({
+      where: {
+        id: id
+      }
+    })
   }
 }
 module.exports= new UserService()

@@ -2,7 +2,6 @@ const db = require('../db/index')
 const {Sequelize} = require('sequelize')
 const {DataTypes} =require('sequelize')
 
-
 //建立user表的相关操作，并进行检查
 
 const user = db.define('user',{
@@ -14,8 +13,12 @@ const user = db.define('user',{
   },
   username:{
     type: DataTypes.STRING(8),
+    unique: true
   },
   password:{
+    type: DataTypes.STRING
+  },
+  token:{
     type: DataTypes.STRING
   }
 },{

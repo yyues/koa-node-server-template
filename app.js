@@ -1,7 +1,6 @@
 const Koa = require('koa2');
 const {Base} =require('./config/index')
 const app = new Koa();
-
 //bodyParser
 const bodyParser = require('koa-bodyparser');
 app.use(bodyParser());
@@ -21,7 +20,19 @@ require('./config/passport')(passport)
 // app.keys = ['secret']
 // app.use(session({}, app))
 
+//upload
+const KoaBody =require('koa-body')
+const path =require('path')
+app.use(KoaBody({
+  multipart: true,
+  formidable:{
+    keepExtensions: true
+  }
+}))
 
+//static
+const KoaStatic =require('koa-static')
+app.use(KoaStatic(path.join(__dirname, '/public')))
 
 // logger
 app.use(async (ctx, next) => {
@@ -35,7 +46,9 @@ app.use(async (ctx, next) => {
 //router
 const index=require('./router/index')
 const user=require('./router/user')
+const utils=require('./router/utils')
 app.use(index.routes())
 app.use(user.routes())
+app.use(utils.routes())
 
 app.listen(Base.port);
