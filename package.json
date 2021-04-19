@@ -29,9 +29,12 @@
   },
   "devDependencies": {
     "JSON": "^1.0.0",
+    "crypto": "^1.0.1",
     "fs": "0.0.1-security",
     "koa-json": "^2.0.2",
+    "koa2-request": "^1.0.4",
     "path": "^0.12.7",
-    "validator": "^13.5.2"
+    "validator": "^13.5.2",
+    "xml2js": "^0.4.23"
   }
 }
