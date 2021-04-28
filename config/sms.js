@@ -7,7 +7,9 @@ const accessKeyId = ""; //你自己在阿里云后台的accessKeyId
 const secretAccessKey = ""; //secretAccessKey
 
 let SMS = {};
+
 module.exports = SMS;
+
 SMS.send = async (ctx) => {
   let { PhoneNumber } = ctx.request.body;
   let num = "";
@@ -23,7 +25,7 @@ SMS.send = async (ctx) => {
     TemplateParam: '{"number":"' + number + '","product":"阿斯蒂芬"}', //特别注意，这里的参数名
   });
   if (s.Code == "OK") {
-    ctx.body = { code: 200, msg: number };
+    ctx.body = { code: 200, msg: "短信发送成功，请及时输入验证码" };
   } else {
     ctx.body = { code: 500 };
   }

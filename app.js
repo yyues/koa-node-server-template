@@ -1,8 +1,10 @@
 const Koa = require("koa2");
 const { Base } = require("./config/index");
 const app = new Koa();
+const path = require("path");
+
 const { AddRouter } = require("./bin/router.js");
-AddRouter(app);
+
 //bodyParser
 const bodyParser = require("koa-bodyparser");
 app.use(bodyParser());
@@ -11,21 +13,13 @@ app.use(bodyParser());
 const cors = require("koa-cors");
 app.use(cors());
 
-//upload
-const KoaBody = require("koa-body");
-const path = require("path");
-app.use(
-  KoaBody({
-    multipart: true,
-    formidable: {
-      keepExtensions: true,
-    },
-  })
-);
-
 //static
 const KoaStatic = require("koa-static");
 app.use(KoaStatic(path.join(__dirname, "/public")));
+
+// 登录拦截
+const FILTER = require("./config/interceptor");
+FILTER(app);
 
 // logger
 app.use(async (ctx, next) => {
@@ -35,4 +29,5 @@ app.use(async (ctx, next) => {
   console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
 });
 
+AddRouter(app);
 app.listen(Base.port);

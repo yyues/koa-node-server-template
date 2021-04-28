@@ -1,5 +1,9 @@
 const router = require("koa-router")();
+// 调用user方法查找满足条件用户
 const UserController = require("../controller/user");
+// 先给一个token
+const { EncodeToken } = require("../config/token");
+
 const { getCodeText } = require("../config/verification");
 router.get("/", async (ctx, next) => {
   ctx.body = {
@@ -10,6 +14,12 @@ router.get("/", async (ctx, next) => {
 router.get("/home", async (ctx, next) => {
   ctx.body = "home";
 });
-router.post("/login");
+router.post("/login", async (ctx) => {
+  let data = { username: "yaoyue" };
+  let token = EncodeToken(data);
+  // success
+  //下面只需要登录就可以了，
+  ctx.body = "success";
+});
 
 module.exports = router;

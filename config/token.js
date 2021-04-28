@@ -3,7 +3,6 @@
  * @createTime 20210419
  * @des token生成器
  * */
-
 const jwt = require("jsonwebtoken");
 const { Base } = require("./index");
 function EncodeToken(payload) {
@@ -23,12 +22,11 @@ function decodeToken(token) {
   });
   const now = new Date().getTime().toString();
   const date = now.substring(0, now.length - 3);
-  console.log(date);
   if (date > res.exp) {
     //说明过期了
-    return { msg: "the token is out" };
+    return "登录国企请重新登录";
   } else {
-    return res;
+    return JSON.parse(JSON.stringify(res));
   }
 }
 
