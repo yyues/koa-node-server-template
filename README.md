@@ -1,37 +1,27 @@
-# yy-koa
+# YY_BASE_KOA_JS
 
-#### 介绍
-koa后端开发
+##这里是 yyue 写的一部基础框架
 
-#### 软件架构
-软件架构说明
+#安装
+npm i
 
+#运行基础程序
+npm start
 
-#### 安装教程
+#功能介绍
+1、实现了文件上传接口，
+2、封装了验证码
+3、按照 java 模式对接口进行了文件夹分类
+4、提供了密码加密和 token 生成，校验模式
 
-1.  xxxx
-2.  xxxxd
-3.  xxxx
+#待完成功能
+1、文件上传进行具体分类，主要途径是限制具体上传格式
+2、实现登录拦截功能，不登陆就没法进行其他请求
+3、验证功能，这个功能我在 controller 进行了控制，但是拆分出来多少有一点不习惯
+4、短信登录和支付功能还需进行调试
+5、基本配置如防止爬虫、减少请求次数、减缓服务器压力
+6、对返回数据进行一定的封装，对状态码的使用要会了解
 
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+#对自己要求
+1、完善整体操作逻辑，实现企业级的后端基本要求
+2、对于所用库的是否满足条件和其他性能
