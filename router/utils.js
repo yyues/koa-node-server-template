@@ -8,7 +8,7 @@ const KoaBody = require("koa-body");
 router.post("/upload", KoaBody({ multipart: true }), (ctx) => {
   const file = ctx.request.files.file;
   if (!file) {
-    ctx.body = Result.error("没有发现id ！");
+    ctx.body = Result.IDNotExist();
   } else {
     const basename = path.basename(file.path);
     if (!file.name && !file.type) {
@@ -34,14 +34,14 @@ router.post("/upload", KoaBody({ multipart: true }), (ctx) => {
       }
       reader.pipe(stream);
       const after_url = ctx.origin + stream.path.substr(6).replace(/\\/g, "/");
-      ctx.body = Result.success(after_url, "上传文件成功");
+      ctx.body = Result.success("上传文件成功", after_url);
     }
   }
 });
 // 验证码生成接口
 router.get("/captcha", (ctx) => {
   let code = getCode();
-  ctx.body = Result.success(code, "获取验证码成功");
+  ctx.body = Result.success("获取验证码成功", code);
   //code.test.toLowerCase() 该数据为验证码内容
 });
 

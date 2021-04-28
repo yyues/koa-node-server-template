@@ -2,8 +2,9 @@
 
 const { decodeToken } = require("./token");
 
+const result = require("../util/result");
 // 不被拦截的请求
-const defultRouter = ["/login", "/home"];
+const defultRouter = ["/login", "/home", "/"];
 
 function FILTER(app) {
   app.use(async (ctx, next) => {
@@ -18,20 +19,14 @@ function FILTER(app) {
       let token = ctx.header.token;
       if (!token) {
         // token 不存在，需要返回登录接口
-        ctx.body = {
-          status: 403,
-          msg: "用户尚未登录，请检查",
-        };
+        ctx.body = result.noLogin;
       } else {
         console.log(decodeToken(token));
         if (decodeToken(token).iat) {
           // 说明登录至少不是过期的
           await next();
         } else {
-          ctx.body = {
-            status: 401,
-            msg: "登录过期，请重新登录",
-          };
+          ctx.body = result.loginOutTime;
         }
       }
     }
