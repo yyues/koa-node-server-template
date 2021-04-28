@@ -9,7 +9,7 @@ const defultRouter = ["/login", "/home", "/"];
 function FILTER(app) {
   app.use(async (ctx, next) => {
     let currentUrl = ctx.originalUrl;
-    console.log(currentUrl);
+
     if (defultRouter.indexOf(currentUrl) !== -1) {
       // 我觉得这个地方使用来放行登录接口的
       console.log(currentUrl + " 不被拦截，允许放行");
@@ -21,7 +21,6 @@ function FILTER(app) {
         // token 不存在，需要返回登录接口
         ctx.body = result.noLogin;
       } else {
-        console.log(decodeToken(token));
         if (decodeToken(token).iat) {
           // 说明登录至少不是过期的
           await next();
