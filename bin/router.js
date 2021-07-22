@@ -1,9 +1,16 @@
+/*
+ * @Author: yaoyue
+ * @Date: 2021-07-20 10:09:26
+ * @LastEditTime: 2021-07-22 10:08:46
+ * @LastEditors: Please set LastEditors
+ * @Description: router 总列表，减少app内代码
+ * @FilePath: \Base-Koa\bin\router.js
+ */
 //router,添加在这添加
-const index = require("../router/index");
-const user = require("../router/user");
-const utils = require("../router/utils");
+const common = require("../router/Common");
+const user = require("../router/User");
 
-const routers = [index, user, utils];
+const routers = [common, user];
 const AddRouter = (app) => {
   routers.forEach((item) => {
     app.use(item.routes());

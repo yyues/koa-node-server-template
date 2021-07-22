@@ -1,7 +1,15 @@
+/*
+ * @Author: yaoyue
+ * @Date: 2021-07-20 10:09:26
+ * @LastEditTime: 2021-07-20 13:19:03
+ * @LastEditors: Please set LastEditors
+ * @Description: 加密解密模块，用来对敏感字段进行加密，对于具体实现途径略有问题
+ * @FilePath: \Base-Koa\config\Crypto.js
+ */
 const crypto = require("crypto");
-//封装加密
-//公共秘钥
+
 const secret = "yyues";
+
 
 function enCrypto(data) {
   const cipher = crypto.createCipheriv("aes-192-ccm", secret);

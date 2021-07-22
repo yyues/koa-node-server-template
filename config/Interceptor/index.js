@@ -1,10 +1,17 @@
-// 登录拦截控制
+/*
+ * @Author: your name
+ * @Date: 2021-07-20 10:09:26
+ * @LastEditTime: 2021-07-22 11:05:45
+ * @LastEditors: Please set LastEditors
+ * @Description: 登录拦截器
+ * @FilePath: \Base-Koa\Config\interceptor.js
+ */
 
-const { decodeToken } = require("./token");
+const { handleToken } = require("../Token");
 
-const result = require("../util/result");
+const result = require("../../Util/Result");
 // 不被拦截的请求
-const defultRouter = ["/login", "/home", "/"];
+const defultRouter = ["/login", "/upload", "/"];
 
 function FILTER(app) {
   app.use(async (ctx, next) => {
@@ -21,7 +28,7 @@ function FILTER(app) {
         // token 不存在，需要返回登录接口
         ctx.body = result.noLogin;
       } else {
-        if (decodeToken(token).iat) {
+        if (handleToken(token).iat) {
           // 说明登录至少不是过期的
           await next();
         } else {

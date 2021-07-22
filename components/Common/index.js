@@ -1,23 +1,26 @@
-const router = require("koa-router")();
-const Result = require("../util/result");
+/*
+ * @Author: your name
+ * @Date: 2021-07-20 15:13:07
+ * @LastEditTime: 2021-07-22 10:32:28
+ * @LastEditors: Please set LastEditors
+ * @Description: 通用接口处理
+ * @FilePath: \Base-Koa\components\Common\index.js
+ */
 const path = require("path");
 const fs = require("fs");
-const { getCode } = require("../config/verification");
-const KoaBody = require("koa-body");
-// 图片上传接口
-router.post("/upload", KoaBody({ multipart: true }), (ctx) => {
+const Result = require("../../Util/Result");
+const handleUpload = async (ctx) => {
   const file = ctx.request.files.file;
   if (!file) {
     ctx.body = Result.IDNotExist();
   } else {
-    const basename = path.basename(file.path);
     if (!file.name && !file.type) {
       fs.unlinkSync(file.path);
       ctx.body = Result.error("上传文件为空");
     } else {
       const type = file.type.split("/")[0];
-      file.name =
-        new Date().getTime().toString() + "." + file.name.split(".")[1];
+      // file.name =
+      //   new Date().getTime().toString() + "." + file.name.split(".")[1];
       const reader = fs.createReadStream(file.path);
       switch (type) {
         case "image":
@@ -37,12 +40,5 @@ router.post("/upload", KoaBody({ multipart: true }), (ctx) => {
       ctx.body = Result.success("上传文件成功", after_url);
     }
   }
-});
-// 验证码生成接口
-router.get("/captcha", (ctx) => {
-  let code = getCode();
-  ctx.body = Result.success("获取验证码成功", code);
-  //code.test.toLowerCase() 该数据为验证码内容
-});
-
-module.exports = router;
+};
+module.exports = { handleUpload };
