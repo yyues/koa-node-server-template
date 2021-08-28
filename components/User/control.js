@@ -68,7 +68,7 @@ const handleFindOneUserInfo = async ctx => {
     ? { code: 200, msg: '查找成功', data: res }
     : { code: 500, msg: '查找失败' }
 }
-const handleUpdataUserInfo = async ctx => {
+const handleUpdateUserInfo = async ctx => {
   // 修改用户信息，post请求，format-data 格式 ，body里取数据,基本不需要校验格式
   let { id, username, password } = ctx.request.body
   //   此处可以考虑下是否在修改密码的状态下修改token
@@ -109,7 +109,7 @@ module.exports = {
   handleCreateUser,
   handleDeleteUser,
   handleGetUserListInfo,
-  handleUpdataUserInfo,
+  handleUpdateUserInfo,
   handleLogin,
   handleFindOneUserInfo
 }
