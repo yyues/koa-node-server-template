@@ -2,7 +2,9 @@
 node_chache
 node_modules
 /dist
-
+public/image
+public/video
+public/file
 
 # local env files
 .env.local
