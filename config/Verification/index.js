@@ -11,7 +11,7 @@ const codeConfig = {
   ignoreChars: '0oli',
   fontSize: 32,
   width: 80,
-  height: 30
+  height: 40
 }
 
 const res = svgCode.create(codeConfig)
