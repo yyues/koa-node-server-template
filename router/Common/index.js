@@ -6,29 +6,30 @@
  * @Description: 通用接口，如 login / upload
  * @FilePath: \Base-Koa\router\index.js
  */
-const router = require("koa-router")();
-const { handleLogin } = require("../../components/User/control");
-const { handleUpload } = require("../../components/Common");
+const router = require('koa-router')()
+const { handleLogin } = require('../../components/User/control')
+const { handleUpload } = require('../../components/Common')
 
-router.get("/", async (ctx, next) => {
+router.get('/', async (ctx, next) => {
   ctx.body = {
-    msg: "你的世界变得那么大了，我也就变得可有可无了",
-  };
-});
+    msg: '你的世界变得那么大了，我也就变得可有可无了'
+  }
+})
 
 // 图片上传接口
-const KoaBody = require("koa-body");
-router.post("/upload", handleUpload);
+const KoaBody = require('koa-body')
+router.post('/upload', handleUpload)
 
 // 验证码生成接口
-const { getCode } = require("../../Config/Verification");
+const { getCode } = require('../../Config/Verification')
+const Result = require('../../Util/Result')
 
-router.get("/captcha", (ctx) => {
-  let code = getCode();
-  ctx.body = Result.success("获取验证码成功", code);
+router.get('/captcha', ctx => {
+  let code = getCode()
+  ctx.body = Result.success('获取验证码成功', code)
   //code.test.toLowerCase() 该数据为验证码内容
-});
+})
 
-router.post("/login", handleLogin);
+router.post('/login', handleLogin)
 
-module.exports = router;
+module.exports = router
