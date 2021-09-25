@@ -21,12 +21,22 @@ const KoaBody = require('koa-body')
 router.post('/upload', handleUpload)
 
 // 验证码生成接口
-const { getCode } = require('../../Config/Verification')
+
 const Result = require('../../Util/Result')
 
-router.get('/captcha', ctx => {
-  let code = getCode()
-  ctx.body = Result.success('获取验证码成功', code)
+const captcha = require('svg-captcha')
+
+const codeConfig = {
+  size: 4, //验证码长度
+  ignoreChars: '0oli',
+  fontSize: 32,
+  width: 80,
+  height: 35
+}
+
+router.post('/captcha', ctx => {
+  const res = captcha.create(codeConfig)
+  ctx.body = Result.success('获取验证码成功', res.data)
   //code.test.toLowerCase() 该数据为验证码内容
 })
 
