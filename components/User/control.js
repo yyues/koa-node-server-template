@@ -13,16 +13,16 @@ const UserService = require('./service')
 const { getDataFromDb, getDatasFromDb } = require('../../Util/getDataFromDb')
 // 引用token，作为后续登陆请求索引值，检测标准
 const { getToken, handleToken } = require('../../Config/Token')
+const Result = require('../../Util/Result')
 
 const handleCreateUser = async ctx => {
   // 创建用户信息，post请求，format-data 格式 ，body里取数据,基本不需要校验格式
   let { username, password } = ctx.request.body
-  let token = getToken({ username })
   //   调用定义好的类功能，直接实现该功能
   const res = UserService.createUserInfo({
     username,
     password,
-    token
+    
   })
     .then(() => true)
     .catch(() => false)
@@ -89,8 +89,11 @@ const handleUpdateUserInfo = async ctx => {
 const handleLogin = async ctx => {
   // 登录接口，post请求，format-data 格式 ，body里取数据，不需要校验格式
   let { username, password } = ctx.request.body
+  const token = getToken({username})
+  let userId
   const isExist = await UserService.getUserByUserName(username)
     .then(res => {
+      userId = getDataFromDb(res).id
       return getDataFromDb(res) ? true : false
     })
     .catch(() => false)
@@ -98,8 +101,9 @@ const handleLogin = async ctx => {
     const res = await UserService.Login(username, password)
       .then(() => true)
       .catch(() => false)
+    await UserService.updateUserInfo(userId, {token})
     ctx.body = res
-      ? { code: 200, msg: '登录成功' }
+      ? Result.success('登录成功', {token})
       : { code: 500, msg: '登录失败' }
   } else {
     ctx.body = { code: 500, msg: '账号不存在' }
