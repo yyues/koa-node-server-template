@@ -46,7 +46,7 @@ app.use(async (ctx, next) => {
   const start = Date.now()
   await next()
   const ms = Date.now() - start
-  console.log(`${ctx.method} ${ctx.url} - ${ms}ms 请求参数-${ctx.request.body || ctx.request.params} `)
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms 请求参数-${JSON.stringify(ctx.request.body || ctx.request.params)} `)
 })
 
 AddRouter(app)
