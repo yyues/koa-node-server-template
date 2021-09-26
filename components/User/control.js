@@ -16,17 +16,17 @@ const { getDataFromDb, getDatasFromDb } = require('../../Util/getDataFromDb')
 const { getToken, handleToken } = require('../../Config/Token')
 const Result = require('../../Util/Result')
 
-const handleCreateUser = async ctx => {
+const handleRegister = async ctx => {
   // 创建用户信息，post请求，format-data 格式 ，body里取数据,基本不需要校验格式
   let { username, password } = ctx.request.body
   //   调用定义好的类功能，直接实现该功能
-  const res = UserService.createUserInfo({
-    username,
-    password
-  })
-    .then(() => true)
-    .catch(() => false)
-  ctx.body = res ? { code: 200, msg: '添加成功' } : { code: 404, msg: '添加失败' }
+  const res = await UserService.getUserByUserName(username)
+  if (res) {
+    ctx.body = Result.error('账号已存在！')
+  } else {
+    await UserService.createUserInfo({ username, password })
+    ctx.body = Result.success('注册成功')
+  }
 }
 const handleDeleteUser = async ctx => {
   // 删除用户信息，del请求，query 作为ctx参数，不需要校验格式, 需要注意是否执行软删除
@@ -86,10 +86,9 @@ const handleLogin = async ctx => {
     ctx.body = Result.error('账号或密码错误')
   }
   if (!res) ctx.body = Result.error('账号不存在')
-  
 }
 module.exports = {
-  handleCreateUser,
+  handleRegister,
   handleDeleteUser,
   handleGetUserListInfo,
   handleUpdateUserInfo,

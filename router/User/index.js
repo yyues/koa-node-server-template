@@ -8,7 +8,6 @@
  */
 const router = require('koa-router')()
 const {
-  handleCreateUser,
   handleUpdateUserInfo,
   handleGetUserListInfo,
   handleDeleteUser,
@@ -18,7 +17,7 @@ router.prefix('/user')
 router.get('/', async ctx => {
   ctx.body = { code: 200, msg: '好久不见呐，你怎么样了' }
 })
-router.post('/add', handleCreateUser)
+
 router.post('/update', handleUpdateUserInfo)
 router.get('/findList', handleGetUserListInfo)
 router.delete('/delete', handleDeleteUser)

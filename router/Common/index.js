@@ -7,7 +7,8 @@
  * @FilePath: \Base-Koa\router\index.js
  */
 const router = require('koa-router')()
-const { handleLogin } = require('../../components/User/control')
+
+const { handleLogin , handleRegister } = require('../../components/User/control')
 const { handleUpload } = require('../../components/Common')
 
 router.get('/', async (ctx, next) => {
@@ -37,9 +38,10 @@ const codeConfig = {
 router.post('/captcha', ctx => {
   const res = captcha.create(codeConfig)
   ctx.body = Result.success('获取验证码成功', { data: res.data, code: res.text })
-  //code.test.toLowerCase() 该数据为验证码内容
 })
 
 router.post('/login', handleLogin)
+
+router.post('/register', handleRegister)
 
 module.exports = router
