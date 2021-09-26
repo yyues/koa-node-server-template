@@ -15,7 +15,7 @@ class Result {
     return {
       code: 200,
       msg: msg,
-      data: data || null
+      ...data
     }
   }
   error(msg) {
