@@ -18,7 +18,7 @@ class UserService {
   }
   // 根据 username 查找
   async getUserByUserName(username) {
-    return await user.findAll({
+    return await user.findOne({
       where: {
         username,
       },

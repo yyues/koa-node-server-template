@@ -1,3 +1,4 @@
+// @ts-nocheck
 /*
  * @Author: yaoyue
  * @Date: 2021-07-20 13:50:10
@@ -21,14 +22,11 @@ const handleCreateUser = async ctx => {
   //   调用定义好的类功能，直接实现该功能
   const res = UserService.createUserInfo({
     username,
-    password,
-    
+    password
   })
     .then(() => true)
     .catch(() => false)
-  ctx.body = res
-    ? { code: 200, msg: '添加成功' }
-    : { code: 404, msg: '添加失败' }
+  ctx.body = res ? { code: 200, msg: '添加成功' } : { code: 404, msg: '添加失败' }
 }
 const handleDeleteUser = async ctx => {
   // 删除用户信息，del请求，query 作为ctx参数，不需要校验格式, 需要注意是否执行软删除
@@ -36,27 +34,20 @@ const handleDeleteUser = async ctx => {
   const res = UserService.deleteUserInfo(id)
     .then(() => true)
     .catch(() => false)
-  ctx.body = res
-    ? { code: 200, msg: '删除成功' }
-    : { code: 404, msg: '删除失败' }
+  ctx.body = res ? { code: 200, msg: '删除成功' } : { code: 404, msg: '删除失败' }
 }
 const handleGetUserListInfo = async ctx => {
   // 获得用户列表，get请求，query作为ctx参数，不需要校验格式
   // limit 分页后的每页数量，page，offset 和 limit的乘积，用来实现分页功能
   let { limit, page } = ctx.request.query
-  let data = await UserService.getUserAllAndCount(
-    parseInt(limit),
-    parseInt(page)
-  )
+  let data = await UserService.getUserAllAndCount(parseInt(limit), parseInt(page))
     .then(res => {
       return getDatasFromDb(res)
     })
     .catch(() => {
       return false
     })
-  ctx.body = data
-    ? { code: 200, msg: '查找成功', data }
-    : { code: 500, msg: '查找失败' }
+  ctx.body = data ? { code: 200, msg: '查找成功', data } : { code: 500, msg: '查找失败' }
   // 记得实现过滤密码或者对密码加密
 }
 const handleFindOneUserInfo = async ctx => {
@@ -64,9 +55,7 @@ const handleFindOneUserInfo = async ctx => {
   const res = await UserService.getUserById(id)
     .then(res => getDataFromDb(res))
     .catch(() => false)
-  ctx.body = res
-    ? { code: 200, msg: '查找成功', data: res }
-    : { code: 500, msg: '查找失败' }
+  ctx.body = res ? { code: 200, msg: '查找成功', data: res } : { code: 500, msg: '查找失败' }
 }
 const handleUpdateUserInfo = async ctx => {
   // 修改用户信息，post请求，format-data 格式 ，body里取数据,基本不需要校验格式
@@ -79,9 +68,7 @@ const handleUpdateUserInfo = async ctx => {
     const res = await UserService.updateUserInfo(id, { username, password })
       .then(() => true)
       .catch(() => false)
-    ctx.body = res
-      ? { code: 200, msg: '修改成功' }
-      : { code: 500, msg: '修改失败' }
+    ctx.body = res ? { code: 200, msg: '修改成功' } : { code: 500, msg: '修改失败' }
   } else {
     ctx.body = { code: 403, msg: 'id不存在' }
   }
@@ -89,25 +76,17 @@ const handleUpdateUserInfo = async ctx => {
 const handleLogin = async ctx => {
   // 登录接口，post请求，format-data 格式 ，body里取数据，不需要校验格式
   let { username, password } = ctx.request.body
-  const token = getToken({username})
-  let userId
-  const isExist = await UserService.getUserByUserName(username)
-    .then(res => {
-      userId = getDataFromDb(res).id
-      return getDataFromDb(res) ? true : false
-    })
-    .catch(() => false)
-  if (isExist) {
-    const res = await UserService.Login(username, password)
-      .then(() => true)
-      .catch(() => false)
-    await UserService.updateUserInfo(userId, {token})
-    ctx.body = res
-      ? Result.success('登录成功', {token})
-      : { code: 500, msg: '登录失败' }
-  } else {
-    ctx.body = { code: 500, msg: '账号不存在' }
+  const token = getToken({ username })
+  const res = await UserService.getUserByUserName(username)
+  if (res && res.password == password) {
+    await UserService.updateUserInfo(res.id, { token })
+    ctx.body = Result.success('登录成功', { token })
   }
+  if (res && res.password !== password) {
+    ctx.body = Result.error('账号或密码错误')
+  }
+  if (!res) ctx.body = Result.error('账号不存在')
+  
 }
 module.exports = {
   handleCreateUser,
