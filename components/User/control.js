@@ -1,17 +1,8 @@
 // @ts-nocheck
-/*
- * @Author: yaoyue
- * @Date: 2021-07-20 13:50:10
- * @LastEditTime: 2021-07-22 09:52:09
- * @LastEditors: Please set LastEditors
- * @Description: 本意是将三个相同的功能集合到一个文件内，
- * 不知道有没有坏处，但还是要做到结果划分清楚，才能更好的使用
- * @FilePath: \Base-Koa\components\User\index.js
- */
+
 // 引入拆分好的服务层数据，方便调用
 const UserService = require('./service')
-// 处理得到的数据库数据格式，转为对象的处理函数
-const { getDataFromDb, getDatasFromDb } = require('../../Util/getDataFromDb')
+
 // 引用token，作为后续登陆请求索引值，检测标准
 const { getToken, handleToken } = require('../../Config/Token')
 const Result = require('../../Util/Result')
