@@ -38,21 +38,14 @@ const handleGetUserListInfo = async ctx => {
   // 获得用户列表，get请求，query作为ctx参数，不需要校验格式
   // limit 分页后的每页数量，page，offset 和 limit的乘积，用来实现分页功能
   let { limit, page } = ctx.request.query
-  let data = await UserService.getUserAllAndCount(parseInt(limit), parseInt(page))
-    .then(res => {
-      return getDatasFromDb(res)
-    })
-    .catch(() => {
-      return false
-    })
+  const data = await UserService.getUserAllAndCount(parseInt(limit), parseInt(page))
   ctx.body = data ? { code: 200, msg: '查找成功', data } : { code: 500, msg: '查找失败' }
   // 记得实现过滤密码或者对密码加密
 }
 const handleFindOneUserInfo = async ctx => {
   const { id } = ctx.request.query
   const res = await UserService.getUserById(id)
-    .then(res => getDataFromDb(res))
-    .catch(() => false)
+
   ctx.body = res ? { code: 200, msg: '查找成功', data: res } : { code: 500, msg: '查找失败' }
 }
 const handleUpdateUserInfo = async ctx => {
@@ -60,12 +53,8 @@ const handleUpdateUserInfo = async ctx => {
   let { id, username, password } = ctx.request.body
   //   此处可以考虑下是否在修改密码的状态下修改token
   const IsExist = await UserService.getUserById(id)
-    .then(res => getDataFromDb(res))
-    .catch(() => false)
   if (IsExist) {
     const res = await UserService.updateUserInfo(id, { username, password })
-      .then(() => true)
-      .catch(() => false)
     ctx.body = res ? { code: 200, msg: '修改成功' } : { code: 500, msg: '修改失败' }
   } else {
     ctx.body = { code: 403, msg: 'id不存在' }
