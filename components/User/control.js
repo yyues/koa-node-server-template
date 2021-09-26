@@ -32,9 +32,7 @@ const handleDeleteUser = async ctx => {
   // 删除用户信息，del请求，query 作为ctx参数，不需要校验格式, 需要注意是否执行软删除
   let { id } = ctx.request.query
   const res = UserService.deleteUserInfo(id)
-    .then(() => true)
-    .catch(() => false)
-  ctx.body = res ? { code: 200, msg: '删除成功' } : { code: 404, msg: '删除失败' }
+  ctx.body = res ? Result.success('删除成功') : Result.error('删除失败')
 }
 const handleGetUserListInfo = async ctx => {
   // 获得用户列表，get请求，query作为ctx参数，不需要校验格式
