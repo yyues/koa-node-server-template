@@ -6,6 +6,7 @@ module.exports = {
     // static: {
     //   enable: true,
     // }
+
     // mysql: {
     //     enable: true,
     //     package: 'egg-mysql',
@@ -22,4 +23,8 @@ module.exports = {
     //     enable: true,
     //     package: 'egg-mp',
     // }
+    validate: {
+        enable: true,
+        package: 'egg-validate',
+    }
 };

@@ -14,15 +14,25 @@ module.exports = appInfo => {
         // use for cookie sign key, should change to your own and keep security
         keys: appInfo.name + '_1666058000066_4953',
         // add your middleware config here
-        // middleware: ['compress'],
-        // compress: {
-        //     threshold: 2048,
-        // },
+        middleware: ['compress', 'errorHandler'],
+        compress: {
+            threshold: 2048,
+        },
+        security: {
+            csrf: {
+                enable: false,
+            },
+        },
+        errorHandler: {
+            match: '/api'
+        },
+        proxy: true,
         // oAuth2Server: {
         //     debug: appInfo.env === 'local',
         //     grants: ['password', 'client_credentials'],
         // }
     };
+
     // config.mp = {
     //     appId: '', // 公众平台应用编号
     //     appSecret: '', // 公众平台应用密钥
