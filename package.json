@@ -1,38 +1,44 @@
 {
-  "name": "base_koa_api",
+  "name": "wx-serve",
   "version": "1.0.0",
-  "description": "yaoyue's api",
-  "main": "app",
-  "scripts": {
-    "test": "no",
-    "start": "nodemon app.js"
+  "description": "yy-wx-serve for only user",
+  "private": true,
+  "egg": {
+    "declarations": true
   },
-  "author": "yaoyue",
-  "license": "ISC",
   "dependencies": {
-    "@alicloud/sms-sdk": "^1.1.6",
-    "jsonwebtoken": "^8.5.1",
-    "koa-body": "^4.2.0",
-    "koa-bodyparser": "^4.3.0",
-    "koa-cors": "0.0.16",
-    "koa-multer": "^1.0.2",
-    "koa-passport": "^4.1.4",
-    "koa-router": "^10.0.0",
-    "koa-static": "^5.0.0",
-    "koa2": "^2.0.0-alpha.7",
-    "mysql2": "^2.2.5",
-    "nodemon": "^2.0.7",
-    "passport-jwt": "^4.0.0",
-    "sequelize": "^6.6.2"
+    "egg": "^3",
+    "egg-scripts": "^2"
   },
   "devDependencies": {
-    "JSON": "^1.0.0",
-    "crypto": "^1.0.1",
-    "fs": "0.0.1-security",
-    "koa-json": "^2.0.2",
-    "koa2-request": "^1.0.4",
-    "path": "^0.12.7",
-    "svg-captcha": "^1.4.0",
-    "xml2js": "^0.4.23"
-  }
+    "egg-bin": "^5",
+    "egg-ci": "^2",
+    "egg-mock": "^5",
+    "eslint": "^8",
+    "eslint-config-egg": "^12"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "start": "egg-scripts start --daemon --title=egg-server-wx-serve",
+    "stop": "egg-scripts stop --title=egg-server-wx-serve",
+    "dev": "egg-bin dev",
+    "debug": "egg-bin debug",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov"
+  },
+  "ci": {
+    "version": "16, 18",
+    "type": "github"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "yao-yue",
+  "license": "MIT"
 }
