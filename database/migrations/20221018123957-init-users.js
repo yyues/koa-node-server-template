@@ -21,8 +21,6 @@ module.exports = {
       token: STRING, // 用户 toke
       cookie: STRING,// 用户 cookie
       login_browser: STRING, // 用户 浏览器
-      created_time: DATE, // 用户创建时间
-      updated_time: DATE, // 用户 更新时间
       total_task_count: {
         type: INTEGER,
         defaultValue: 0,
@@ -33,13 +31,13 @@ module.exports = {
       },// 用户 账号下 当前还未的待办数量
       remark: STRING( 30 ), // 账号备注
       description: STRING( 100 ),//  账号描述
+      is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
     }, {
       // 不要忘记启用时间戳！
       timestamps: true,
-
       // 不想要 createdAt
-      createdAt: false,
-      updatedAt: false
+      createdAt: 'create_time',
+      updatedAt: 'update_time'
     } )
   },
   // 在执行数据库降级时调用的函数，删除 users 表
