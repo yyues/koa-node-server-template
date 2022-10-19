@@ -22,6 +22,8 @@ module.exports = {
       is_private: { type: BOOLEAN, defaultValue: false }, // 是否是私密的
       remark: { type: STRING( 19 ), allowNull: true }, // 备注， 长度应该不长，限制19
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
+      create_time: DATE,
+      update_time: DATE,
     }, {
       // 不要忘记启用时间戳！
       timestamps: true,

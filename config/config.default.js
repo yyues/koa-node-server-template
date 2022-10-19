@@ -24,7 +24,7 @@ module.exports = appInfo => {
       }
     },
     errorHandler: {
-      match: '/api'
+      match: '/^'
     },
     proxy: true,
     // oAuth2Server: {
@@ -41,13 +41,17 @@ module.exports = appInfo => {
     }
   }
 
-  // config.mp = {
-  //     appId: '', // 公众平台应用编号
-  //     appSecret: '', // 公众平台应用密钥
-  //     mchId: '', // 商户平台商家编号
-  //     apiKey: '', // 商户支付密钥
-  //     notifyUrl: '' // 支付结果回调地址
-  // };
+  config.mp = {
+    appId: 'wx9af318c392c00a54', // 公众平台应用编号  目前是测试数据
+    appSecret: 'a5fde7fb39fe2de1f169ea2f97a442f3', // 公众平台应用密钥
+    mchId: '', // 商户平台商家编号
+    apiKey: '', // 商户支付密钥
+    notifyUrl: '' // 支付结果回调地址
+  };
+  exports.validate = {
+    convert: true,
+    // validateRoot: false,
+  };
 
   // add your user config here
   const userConfig = {

@@ -17,6 +17,8 @@ module.exports = {
       form_type: { type: STRING( 10 ), defaultValue: 'person' }, // 是个人发布的还是圈子发布的
       star_count: { type: INTEGER, defaultValue: 0 },// 点赞数量
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
+      create_time: DATE,
+      update_time: DATE,
     }, {
       // 不要忘记启用时间戳！
       timestamps: true,

@@ -47,6 +47,8 @@ module.exports = {
       task_status: { type: STRING( 10 ), defaultValue: 'running' },// 创建完任务后，状态就更新为进行中
       task_type: { type: STRING( 6 ), defaultValue: 'person' }, // 任务类型，一般是代表个人的
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
+      create_time: DATE,
+      update_time: DATE,
     }, {
       // 不要忘记启用时间戳！
       timestamps: true,

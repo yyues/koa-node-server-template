@@ -42,6 +42,8 @@ module.exports = {
       description: { type: STRING( 49 ), allowNull: true }, // 描述，长度49字符
       remark: { type: STRING( 19 ), allowNull: true }, // 备注， 长度应该不长，限制19
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
+      create_time: DATE,
+      update_time: DATE,
     }, {
       // 不要忘记启用时间戳！
       timestamps: true,

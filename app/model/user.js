@@ -4,9 +4,9 @@ module.exports = ( app ) => {
   const { STRING, INTEGER, DATE, BOOLEAN, } = app.Sequelize;
 
   const User = app.model.define( 'user', {
-    uid: { type: INTEGER, primaryKey: true, autoIncrement: true }, // 用户 uid
-    username: STRING( 30 ),  // 用户 账号名称
-    avatarUrl: STRING, // 用户 头像连接
+    uid: { type: INTEGER( 6 ), primaryKey: true, autoIncrement: true }, // 用户 uid
+    user_name: STRING( 30 ),  // 用户 账号名称
+    avatar_url: STRING, // 用户 头像连接
     login_status: {
       type: BOOLEAN,
       defaultValue: false,
@@ -18,9 +18,10 @@ module.exports = ( app ) => {
     cookie_duration: INTEGER, // 用户 cookie 时长  单位毫秒 INT
     token: STRING, // 用户 toke
     cookie: STRING,// 用户 cookie
+    session_key: STRING,// wx session_key
+    openid: STRING,// wx openid
+    unionid: STRING, // wx unionid
     login_browser: STRING, // 用户 浏览器
-    created_time: DATE, // 用户创建时间
-    updated_time: DATE, // 用户 更新时间
     total_task_count: {
       type: INTEGER,
       defaultValue: 0,
@@ -29,15 +30,17 @@ module.exports = ( app ) => {
       type: INTEGER,
       defaultValue: 0,
     },// 用户 账号下 当前还未的待办数量
-    remark: STRING( 30 ), // 账号备注
-    description: STRING( 100 ),//  账号描述
+    remark: STRING( 19 ), // 账号备注
+    description: STRING( 99 ),//  账号描述
+    need_update_info: { type: BOOLEAN, defaultValue: false }, // 主要用在 创建账户的时候，免得创建了账户但是没有用户信息
+    is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
+    create_time: DATE,
+    update_time: DATE,
   }, {
     // 不要忘记启用时间戳！
     timestamps: true,
-
-    // 不想要 createdAt
-    createdAt: false,
-    updatedAt: false
+    createdAt: 'create_time',
+    updatedAt: 'update_time'
   } );
 
   return User;
