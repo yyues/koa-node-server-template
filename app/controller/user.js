@@ -61,7 +61,7 @@ class UserController extends Controller {
           }
         } )
         ctx.body = {
-          status: 'NO_BIND', // 指 没有注册用户
+          status: 'LOGIN_SUCCESS', // 指 没有注册用户
           code: 200,
           data,
           success: true
@@ -73,13 +73,14 @@ class UserController extends Controller {
       if ( account.need_update_info ) {
         //  或者说 用户注册了但是没有更新用户信息
         ctx.body = {
-          status: 'NO_BIND', //  此处指没有更新用户信息
+          status: 'LOGIN_SUCCESS', //  此处指没有更新用户信息
           code: 200,
           data: account,
           success: true
         }
         return
       }
+      //
       ctx.body = {
         status: 'LOGIN_SUCCESS', // 指 没有注册用户
         code: 200,
@@ -96,6 +97,121 @@ class UserController extends Controller {
       success: false
     }
   }
+
+  async getUserInfo() {
+    const ctx = this.ctx
+    const service = this.service
+    let error
+    try {
+      ctx.validate( { uid: { type: 'string', required: true } }, ctx.request.body )
+    } catch (e) {
+      error = e.errors
+    }
+    if ( error ) {
+      //   校验不通过 return
+      ctx.body = {
+        code: 200,
+        status: 'VALIDATE_ERROR',
+        error,
+        message: 'uid 校验不通过',
+        success: false
+      }
+      return
+    }
+    // 获取基本信息
+    const userinfo = await ctx.model.User.findOne( {
+      where: {
+        uid: ctx.request.body.uid,
+        is_delete: false
+      }
+    } )
+    if ( !userinfo ) {
+      ctx.body = {
+        code: 200,
+        status: 'NO_EXIST',
+        error,
+        message: '用户不存在',
+        success: false
+      }
+      return
+
+    }
+    //  获取用户待办表 数量
+    //  获取用户的圈子信息, 只包括 id
+    //  获取用户当前的待办数据
+    //  获取用户当前的任务
+    ctx.body = {
+      status: 'SUCCESS', // 指 没有注册用户
+      code: 200,
+      data: {
+        ...userinfo
+      },
+      success: true
+    }
+  }
+
+  async updateUserInfo() {
+    const ctx = this.ctx
+    const query = ctx.request.body
+    console.log( query, 'update user info' )
+    const rules = {
+      openid: { required: true, type: 'string', }
+    }
+    let error
+    try {
+      ctx.validate( rules, query )
+    } catch (e) {
+      error = e.errors
+    }
+    if ( error ) {
+      //   校验不通过 return
+      ctx.body = {
+        code: 200,
+        status: 'VALIDATE_ERROR',
+        error,
+        message: '校验不通过',
+        success: false
+      }
+      return
+    }
+    const res = await ctx.model.User.findOne( {
+      where: { openid: query.openid }
+    } )
+    if ( !res ) {
+      ctx.body = {
+        code: 200,
+        status: 'NO_EXIST',
+        error,
+        message: '用户不存在',
+        success: false
+      }
+      return
+    }
+    const data = {
+      ...query,
+    }
+    // 尝试更新 ，失败则单独抛出返回
+    try {
+      await ctx.model.User.update( data, {
+        where: { openid: query.openid }
+      } )
+      ctx.body = {
+        code: 200,
+        status: 'SUCCESS',
+        data: {},
+        success: true
+      }
+    } catch (e) {
+      ctx.body = {
+        code: 200,
+        status: 'UPDATE_ERROR',
+        error: [],
+        message: '更新用户失败',
+        success: false
+      }
+    }
+  }
+
 }
 
 module.exports = UserController;
