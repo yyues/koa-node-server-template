@@ -1,39 +1,58 @@
-const Controller = require( 'egg' ).Controller;
+const Controller = require('egg').Controller;
 
 class BaseController extends Controller {
-  //自定义方法
-  Validate( rules, query ) {
-    let flag, error
+  // 获取当前操作员方法 主要为了获取 uid
+  async currentUser() {
+    const token = this.ctx.request.header.query;
+    if (!token) {
+      return { uid: null };
+    }
+    const res = await this.ctx.model.User.findOne({
+      where: {
+        access_token: token,
+        is_delete: false,
+      },
+    });
+    if (!res) {
+      return { uid: null };
+    }
+    return res;
+  }
+
+  // 自定义方法
+  Validate(rules, query) {
+    let flag,
+      error;
     try {
-      this.ctx.validate( rules, query )
-      flag = true
+      this.ctx.validate(rules, query);
+      flag = true;
     } catch (e) {
-      error = e.errors
-      flag = false
+      error = e.errors;
+      flag = false;
     }
     return {
       status: flag,
-      error
-    }
+      error,
+    };
   }
 
-  success( data ) {
+  success(data) {
     this.ctx.body = {
       code: 200,
       status: 'SUCCESS',
       data,
-      success: true
-    }
+      success: true,
+    };
   }
 
-  error( message, errors ) {
+  error(message, errors) {
     this.ctx.body = {
       code: 200,
       status: 'error',
       errors,
       message,
-      success: false
-    }
+      success: false,
+    };
   }
 }
 
