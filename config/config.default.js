@@ -14,7 +14,7 @@ module.exports = appInfo => {
     // use for cookie sign key, should change to your own and keep security
     keys: appInfo.name + '_1666058000066_4953',
     // add your middleware config here
-    middleware: [ 'compress', 'errorHandler' ],
+    middleware: [ 'loginValidate', 'errorHandler', 'compress', ],
     compress: {
       threshold: 2048
     },
@@ -23,9 +23,10 @@ module.exports = appInfo => {
         enable: false
       }
     },
-    errorHandler: {
-      match: '/^'
+    loginValidate: {
+      whiteList: [ '/wx-login' ]
     },
+    errorHandler: {},
     proxy: true,
     // oAuth2Server: {
     //     debug: appInfo.env === 'local',

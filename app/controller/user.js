@@ -42,13 +42,23 @@ class UserController extends Controller {
         openid,
         session_key,
         access_token,
-        expires_in
+        expires_in,
+        login_time: new Date(), // 记录用户登录时间
+        login_status: true
       }
     } )
     if ( created ) {
       //表示当前没有用户，新建了一个用户
+    } else {
+      // 更新用户登录时间
+      await ctx.model.User.update( { login_time: new Date(), login_status: true }, {
+        where: {
+          openid,
+          is_delete: false
+        }
+      } )
     }
-    this.success(dbRes)
+    this.success( dbRes )
   }
 
   async WxAuthorize() {
