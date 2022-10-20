@@ -6,6 +6,7 @@ module.exports = ( app ) => {
   const User = app.model.define( 'user', {
     uid: { type: INTEGER( 6 ), primaryKey: true, autoIncrement: true }, // 用户 uid
     user_name: STRING( 30 ),  // 用户 账号名称
+    user_phone: { type: INTEGER( 11 ), },// 用户授权手机号
     avatar_url: STRING, // 用户 头像连接
     login_status: {
       type: BOOLEAN,
@@ -14,14 +15,13 @@ module.exports = ( app ) => {
     login_time: DATE, // 用户 登录时间
     login_expiration_time: DATE, // 用户 登录过期时间
     login_ip: STRING, // 用户 地址
-    login_agent: STRING, // 用户 会话
-    cookie_duration: INTEGER, // 用户 cookie 时长  单位毫秒 INT
-    token: STRING, // 用户 toke
-    cookie: STRING,// 用户 cookie
-    session_key: STRING,// wx session_key
     openid: STRING,// wx openid
-    unionid: STRING, // wx unionid
-    login_browser: STRING, // 用户 浏览器
+    union_id: { type: STRING, allowNull: true }, // 微信 用户 唯一 unionId
+    session_key: STRING,// wx session_key
+    expires_in: INTEGER, // 用户 access_token 时长  单位毫秒 INT
+    access_token: STRING, // 微信用户  access_token
+    cookie: STRING,// 用户 cookie
+    iv: STRING, // 微信用户 iv
     total_task_count: {
       type: INTEGER,
       defaultValue: 0,
@@ -40,7 +40,8 @@ module.exports = ( app ) => {
     // 不要忘记启用时间戳！
     timestamps: true,
     createdAt: 'create_time',
-    updatedAt: 'update_time'
+    updatedAt: 'update_time',
+    initialAutoIncrement: 100000
   } );
 
   return User;
