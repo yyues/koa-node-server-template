@@ -41,7 +41,7 @@ module.exports = {
       star_count: { type: INTEGER, defaultValue: 0 }, // 点赞数量
       is_stared: { type: BOOLEAN, defaultValue: true }, // 当前用户是否点赞过了
       is_timing_publish: { type: BOOLEAN, defaultValue: false }, // 是否定时创建圈子
-      publish_time: { type: DATE, allowNull: true }, //  定时发布 时间， 一般都是立刻创建圈子
+      publish_time: { type: INTEGER, allowNull: true }, //  定时发布 时间， 一般都是立刻创建圈子, 时间戳存储
       description: { type: STRING( 49 ), allowNull: true }, // 描述，长度49字符
       remark: { type: STRING( 19 ), allowNull: true }, // 备注， 长度应该不长，限制19
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true

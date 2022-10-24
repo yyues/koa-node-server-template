@@ -14,6 +14,7 @@ module.exports = app => {
     status: { type: STRING( 10 ), defaultValue: 'created' }, // 发布的 广场状态
     form_id: { type: STRING, allowNull: true }, // 归属的id， 表示从圈子发布的还是个人发布的
     is_master: { type: BOOLEAN, defaultValue: false }, // 是否是管方发布的
+    is_exist_form:  { type: BOOLEAN, defaultValue: false }, // 是否存在归属， false 表示个人发布的
     form_type: { type: STRING( 10 ), defaultValue: 'person' }, // 是个人发布的还是圈子发布的\
     form_name: { type: STRING( 19 ), allowNull: false }, // 个人或者圈子的name
     is_can_star: { type: BOOLEAN, defaultValue: true }, // 是否可以点赞

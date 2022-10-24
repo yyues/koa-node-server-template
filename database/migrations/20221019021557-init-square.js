@@ -19,6 +19,7 @@ module.exports = {
       overdue_time: { type: DATE( 6 ), allowNull: true }, // 圈子过期时间，默认可以不设置
       is_private: { type: BOOLEAN, defaultValue: false }, // 是否是私密的
       status: { type: STRING( 10 ), defaultValue: 'created' }, // 发布的 广场状态
+      is_exist_form:  { type: BOOLEAN, defaultValue: false }, // 是否存在归属， false 表示个人发布的
       form_id: { type: STRING, allowNull: true }, // 归属的id， 表示从圈子发布的还是个人发布的
       is_master: { type: BOOLEAN, defaultValue: false }, // 是否是管方发布的
       form_type: { type: STRING( 10 ), defaultValue: 'person' }, // 是个人发布的还是圈子发布的
