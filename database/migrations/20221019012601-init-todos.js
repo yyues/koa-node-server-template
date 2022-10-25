@@ -22,11 +22,11 @@ module.exports = {
       remark: { type: STRING( 19 ), allowNull: true }, // 待办的备注， 长度应该不长，限制19
       start_time: { type: STRING( 16 ), allowNull: true }, // 开始时间 ‘10：00’
       end_time: { type: STRING( 16 ), allowNull: true }, // 结束时间 ‘10：00’
-      execute_time: { type: DATE( 6 ), allowNull: true, defaultValue: new Date() }, // 任务的执行时间，前期可不做要求
+      execute_time: { type: STRING, allowNull: true, }, // 任务的执行时间，前期可不做要求
       is_cycle_todo: { type: BOOLEAN, defaultValue: false }, // 是否是 周期任务，指可以创建一系列的周期任务，简化前端判断
       has_children: { type: BOOLEAN, defaultValue: false }, // 是否含有子任务的判断，主要是关联周期任务里的子任务
       parent_id: { type: UUID, allowNull: true }, // 作为 系列任务中的子任务，存在关联的父id
-      remind_time: { type: DATE( 6 ), allowNull: true }, // 微信的 打卡提醒时间， 可以忽略
+      remind_time: { type: STRING, allowNull: true }, // 微信的 打卡提醒时间， 可以忽略
       labels: {
         type: STRING,
         allowNull: true,
@@ -63,8 +63,8 @@ module.exports = {
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
       is_delay: { type: BOOLEAN, defaultValue: false }, // 是否延期
       delay_time: { type: STRING, defaultValue: '还没有逾期哦！' },// 逾期时间
-      create_time: DATE( 6 ),
-      update_time: DATE( 6 ),
+      create_time: DATE,
+      update_time: DATE,
     }, {
       // 不要忘记启用时间戳！
       timestamps: true,

@@ -93,7 +93,8 @@ class todoController extends Controller {
       task_cycle,
       remind_time,
       start_time,
-      end_time
+      end_time,
+      description
     } = ctx.request.body
     const user = await this.currentUser()
     console.log( ctx.request.body, '请求参数' )
@@ -119,7 +120,7 @@ class todoController extends Controller {
       name: 'system auto name', // 系统自动生成的 name 名称
       // content, // 任务内容
       level, // 任务优先级，歧视是个数字
-      execute_time, // 任务的执行时间
+      execute_time: this.moment( execute_time ).format( 'YYYY-MM-DD' ), // 任务的执行时间
       task_type,// 任务类型 默认 person
       labels: labels ?? [], // 动态标签,
       is_current_user: true,
@@ -127,7 +128,8 @@ class todoController extends Controller {
       remind_time,
       start_time,
       end_time,
-      is_long_todo
+      is_long_todo,
+      description
     }
     // 一旦任务不属于个人，就需要传递 所属圈子 id
     if ( task_type !== 'person' ) {
@@ -158,7 +160,7 @@ class todoController extends Controller {
         for (let i = 0; i < task_cycle; i++) {
           await ctx.model.Todo.create( {
             ...createData,
-            execute_time: this.moment( data.execute_time ).add( i, 'days' ),
+            execute_time: this.moment( data.execute_time ).add( i, 'days' ).format('YYYY-MM-DD'),
             parent_id: data.id,
             has_children: false,
             is_can_invite: false, // 作为子任务，不能邀请他人参与
