@@ -50,4 +50,7 @@ npx sequelize db:migrate
 # 可以通过 `db:migrate:undo:all` 回退到初始状态
 # npx sequelize db:migrate:undo:all
 ```
-
+数据库建立语句
+```
+CREATE DATABASE `wx-todo` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci';
+```

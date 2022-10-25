@@ -10,7 +10,7 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
     const { INTEGER, DATE, STRING, BOOLEAN, UUID, UUIDV4 } = Sequelize;
-    await queryInterface.createTable( 'card', {
+    await queryInterface.createTable( 'cards', {
       id: { type: UUID, primaryKey: true, defaultValue: UUIDV4 }, // 唯一 id
       uid: { type: INTEGER, allowNull: false }, // 创建人 的 uid
       form_id: { type: STRING, allowNull: true }, // 发起 的圈子 打卡， 目前不需要广场打卡，这个打卡也可以是个人发起的
@@ -74,6 +74,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.dropTable( 'card' );
+    await queryInterface.dropTable( 'cards' );
   }
 };

@@ -4,7 +4,7 @@ const moment = require( 'moment' );
 class BaseController extends Controller {
   // 获取当前操作员方法 主要为了获取 uid
   async currentUser() {
-    const token = this.ctx.request.header.query;
+    const token = this.ctx.request.header.token;
     if ( !token ) {
       return { uid: null };
     }

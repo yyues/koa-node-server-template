@@ -10,7 +10,7 @@ module.exports = {
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
     const { INTEGER, DATE, STRING, BOOLEAN, UUID, UUIDV4 } = Sequelize;
-    await queryInterface.createTable( 'circle', {
+    await queryInterface.createTable( 'circles', {
       id: { type: UUID, defaultValue: UUIDV4, primaryKey: true }, // 圈子的id， 唯一主键
       create_uid: { type: INTEGER, allowNull: true }, // 圈主 的 uid
       create_name: { type: STRING, allowNull: false }, // 圈主 的  name
@@ -63,6 +63,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.dropTable( 'circle' );
+    await queryInterface.dropTable( 'circles' );
   },
 };

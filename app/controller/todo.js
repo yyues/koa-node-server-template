@@ -6,31 +6,37 @@ class todoController extends Controller {
   // 查询列表接口---- get
   async getList() {
     const { ctx } = this;
+    const { Op } = this.app.Sequelize
     const rules = {
-      page: { type: 'number', required: true },
-      limit: { type: 'number', required: true },
-      keyword: { type: 'number', required: false },
+      page: { type: 'string', required: true },
+      limit: { type: 'string', required: true },
+      keyword: { type: 'string', required: false },
     };
     // 校验  参数
-    const val = this.Validate( rules, ctx.param )
+    const val = this.Validate( rules, ctx.query )
+    console.log( ctx.query, 'dddd' )
     if ( !val.status ) {
       // 校验 不通过
       this.error( '校验不通过', val.error )
       return
     }
-    const { page, limit, keyword } = ctx.param
-    const res = await ctx.model.todo.findAndCountAll( {
+    const { page, limit, keyword } = ctx.query
+    const { uid } = await this.currentUser()
+    const res = await ctx.model.Todo.findAndCountAll( {
       where: {
         is_delete: false,
-        content: {
-          [Op.like]: keyword
-        }
+        // ...!!keyword && {
+        //   content: {
+        //     [Op.like]: keyword
+        //   }
+        // },
+        uid
       },
-      order: [
-        [ 'create_time' ],
-      ],
-      offset: page,
-      limit
+      // order: [
+      //   [ 'create_time' ],
+      // ],
+      offset: Number( page ),
+      limit: Number( limit )
     } )
     this.success( res )
   }
@@ -42,7 +48,7 @@ class todoController extends Controller {
       this.error( 'id不存在', [] )
       return
     }
-    const res = await ctx.model.todo.findOne( {
+    const res = await ctx.model.Todo.findOne( {
       where: {
         id,
         is_delete: false
@@ -63,7 +69,7 @@ class todoController extends Controller {
       content: { type: 'string', required: true },
       long_content: { type: 'string', required: false },
       is_long_todo: { type: 'boolean', required: false },
-      level: { type: 'string', required: true }, // 任务优先级，越大等级越高
+      level: { type: 'number', required: true }, // 任务优先级，越大等级越高
       execute_time: { type: 'string', required: true },// 执行的时间
       is_cycle_todo: { type: 'boolean', required: false }, // 是否是 周期任务
       labels: { type: 'array', required: false },
@@ -85,13 +91,13 @@ class todoController extends Controller {
       is_multiplayer,
       is_cycle_todo,
       task_cycle,
-      remind_time
+      remind_time,
+      start_time,
+      end_time
     } = ctx.request.body
-    if ( is_long_todo ) {
-      //  表明是长任务，修改 校验逻辑
-      rules.content.required = false
-      rules.long_content.required = true
-    }
+    const user = await this.currentUser()
+    console.log( ctx.request.body, '请求参数' )
+
     if ( task_type !== 'person' ) {
       // 一旦任务不属于个人，就需要传递 所属圈子 id
       rules.task_from_id.required = true
@@ -111,30 +117,28 @@ class todoController extends Controller {
     const createData = {
       uid: (await this.currentUser()).uid, // 当前登录人uid
       name: 'system auto name', // 系统自动生成的 name 名称
-      content, // 任务内容
+      // content, // 任务内容
       level, // 任务优先级，歧视是个数字
       execute_time, // 任务的执行时间
       task_type,// 任务类型 默认 person
-      labels, // 动态标签,
+      labels: labels ?? [], // 动态标签,
       is_current_user: true,
-      create_uid: (await this.currentUser()).uid,
+      create_uid: user.uid,
       remind_time,
+      start_time,
+      end_time,
+      is_long_todo
     }
     // 一旦任务不属于个人，就需要传递 所属圈子 id
     if ( task_type !== 'person' ) {
       createData.task_from_id = task_from_id
     }
-    //  表明是长任务，
-    if ( is_long_todo ) {
-      createData.long_content = long_content
-      createData.is_long_todo = is_long_todo
-    }
+
     //  但设定不是 多人任务
     if ( is_multiplayer === false ) {
       createData.is_multiplayer = false
       createData.is_can_invite = false // 不能邀请他人
       createData.max_user_count = 0
-      createData.max_user_count = 'no_invite'
     }
     //  周期任务 ,必传周期时长
     if ( is_cycle_todo ) {
@@ -144,12 +148,15 @@ class todoController extends Controller {
     if ( !id ) {
       // 周期任务，批量创建，需要先创建一个父亲
       if ( is_cycle_todo ) {
-        const data = await ctx.model.todo.create( {
+        const data = await ctx.model.Todo.create( {
           ...createData,
+          // 任务内容及长任务存储方式
+          content: is_long_todo ? '' : content,
+          long_content: is_long_todo ? content : '',
           has_children: true,
         } )
         for (let i = 0; i < task_cycle; i++) {
-          await ctx.mode.todo.create( {
+          await ctx.model.Todo.create( {
             ...createData,
             execute_time: this.moment( data.execute_time ).add( i, 'days' ),
             parent_id: data.id,
@@ -161,16 +168,19 @@ class todoController extends Controller {
         return
       }
       // 普通 创建
-      const data = await ctx.model.todo.create( {
-        ...createData
+      const data = await ctx.model.Todo.create( {
+        ...createData,
+        // 任务内容及长任务存储方式
+        content: is_long_todo ? '' : content,
+        long_content: is_long_todo ? content : ''
       } )
       this.success( data )
       return
     }
     // 修改
-    const res = await ctx.model.todo.update( {
+    const res = await ctx.model.Todo.update( {
       ...ctx.request.body,
-      is_current_user: (await this.currentUser()).uid === ctx.request.body.uid
+      is_current_user: user.uid === ctx.request.body.uid
     }, {
       where: {
         id,
@@ -188,7 +198,7 @@ class todoController extends Controller {
       this.error( 'id不存在', [] )
       return
     }
-    const res = await ctx.model.todo.findOne( {
+    const res = await ctx.model.Todo.findOne( {
       where: {
         id,
         is_delete: false
@@ -198,7 +208,7 @@ class todoController extends Controller {
       this.error( '数据库查无数据', [] )
       return
     }
-    await ctx.model.todo.update( {
+    await ctx.model.Todo.update( {
       ...res,
       is_delete: true
     }, {
