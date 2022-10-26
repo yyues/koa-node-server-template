@@ -24,7 +24,7 @@ module.exports = appInfo => {
       },
     },
     loginValidate: {
-      whiteList: [ '/wx-login' ],
+      whiteList: [ '/wx-login' ,'/upload' ],
     },
     errorHandler: {},
     proxy: true,
@@ -49,6 +49,11 @@ module.exports = appInfo => {
     apiKey: '', // 商户支付密钥
     notifyUrl: '', // 支付结果回调地址
   };
+  //文件上传
+  config.multipart = {
+    mode: 'file'
+  }
+
   exports.validate = {
     convert: true,
     // validateRoot: false,

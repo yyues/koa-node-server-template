@@ -2,7 +2,7 @@ module.exports = options => {
   return async function loginValidate( ctx, next ) {
     const whiteList = options.whiteList;
     const url = ctx.request.url;
-    if ( options.admin ) {
+    if ( options.admin || url.indexOf( '/public' ) !== -1 ) {
       // 超级管理员 不需要校验
       await next();
       return;

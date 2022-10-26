@@ -27,6 +27,10 @@ module.exports = app => {
   router.get( '/message/findOne', controller.message.findOne );
   router.get( '/message/findAll', controller.message.findAll );
   router.post( '/message/send', controller.message.send );
+  //文件上传
+  router.get('/upload', controller.uploadPicture.index); //上传文件路由，使用formData
+  router.post('/upload', controller.uploadPicture.upload);
+
   // app.all('/user/token', app.oAuth2Server.token());
   // app.get('/user/authorize', app.oAuth2Server.authorize(), 'user.code');
   // app.get('/user/authenticate', app.oAuth2Server.authenticate(), 'user.authenticate');
