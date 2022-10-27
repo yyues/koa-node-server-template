@@ -58,11 +58,11 @@ module.exports = appInfo => {
     convert: true,
     // validateRoot: false,
   };
-  exports.alinode = {
-    // 从 `Node.js 性能平台` 获取对应的接入参数
-    appid: config.keys,
-    secret: 'Zxc17630969845',
-  };
+  // exports.alinode = {
+  //   // 从 `Node.js 性能平台` 获取对应的接入参数
+  //   appid: 'yyues',
+  //   secret: 'Zxc17630969845',
+  // };
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
