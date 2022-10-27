@@ -12,7 +12,7 @@ module.exports = {
     const { INTEGER, DATE, STRING, BOOLEAN, UUID, UUIDV4 } = Sequelize;
     await queryInterface.createTable( 'circles', {
       id: { type: UUID, defaultValue: UUIDV4, primaryKey: true }, // 圈子的id， 唯一主键
-      create_uid: { type: INTEGER, allowNull: true }, // 圈主 的 uid
+      create_uid: { type: INTEGER, allowNull: false }, // 圈主 的 uid
       create_name: { type: STRING, allowNull: false }, // 圈主 的  name
       name: { type: STRING( 19 ), allowNull: false }, // 圈子 名称
       content: { type: STRING( 99 ), allowNull: false, defaultValue: '还没有内容哦！' }, // 圈子的 内容

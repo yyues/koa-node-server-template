@@ -67,22 +67,35 @@ class CircleController extends Controller {
   // 新增 - 修改
   async save() {
     const { ctx } = this
+    const { uid, user_name } = await this.currentUser()
     const rules = {
       name: { type: 'string', required: true },
       avatar_url: { type: 'string', required: true }
     }
     const { name, avatar_url, id } = ctx.request.body
     let res
+    // 新增
     if ( !id ) {
-      res = await ctx.model.Circle.create( {
-        ...ctx.request.body
+      console.log( {
+        ...ctx.request.body,
+        create_uid: uid,
+        create_name: user_name
       } )
+      res = await ctx.model.Circle.create( {
+        ...ctx.request.body,
+        create_uid: uid,
+        create_name: user_name
+      } )
+      this.success( res )
+      return
     }
+    //修改
     res = await ctx.model.Circle.update( {
       ...ctx.request.body,
     }, {
       where: {
-        id
+        id,
+        is_delete: false
       }
     } )
     this.success( res )

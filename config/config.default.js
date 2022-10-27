@@ -24,7 +24,7 @@ module.exports = appInfo => {
       },
     },
     loginValidate: {
-      whiteList: [ '/wx-login' ,'/upload' ],
+      whiteList: [ '/wx-login', '/upload' ],
     },
     errorHandler: {},
     proxy: true,
@@ -58,7 +58,11 @@ module.exports = appInfo => {
     convert: true,
     // validateRoot: false,
   };
-
+  exports.alinode = {
+    // 从 `Node.js 性能平台` 获取对应的接入参数
+    appid: config.keys,
+    secret: 'Zxc17630969845',
+  };
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',

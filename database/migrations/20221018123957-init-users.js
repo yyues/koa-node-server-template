@@ -14,6 +14,8 @@ module.exports = {
         type: BOOLEAN,
         defaultValue: false,
       }, // 用户 登录状态
+      province: { type: STRING, allowNull: true }, // 用户当前所在省份
+      city: { type: STRING, allowNull: true }, // 用户当前所在城市
       login_time: DATE, // 用户 登录时间
       login_expiration_time: DATE, // 用户 登录过期时间
       login_ip: STRING, // 用户 地址

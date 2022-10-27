@@ -2,6 +2,7 @@
 
 const Controller = require( '../core/base_controller' );
 
+// 动态
 class SquareController extends Controller {
   // 查询列表接口---- get
   async getList() {
@@ -75,22 +76,28 @@ class SquareController extends Controller {
   // 新增 - 修改
   async save() {
     const { ctx } = this
+    const { uid } = await this.currentUser()
     const rules = {
-      name: { type: 'string', required: true },
-      avatar_url: { type: 'string', required: true }
+      content: { type: 'string', required: true },
     }
-    const { name, avatar_url, id } = ctx.request.body
+    const { content, id } = ctx.request.body
     let res
     if ( !id ) {
+      // 新增
       res = await ctx.model.Square.create( {
-        ...ctx.request.body
+        ...ctx.request.body,
+        uid
       } )
+      this.success( res )
+      return
     }
+    // 修改
     res = await ctx.model.Square.update( {
       ...ctx.request.body,
     }, {
       where: {
-        id
+        id,
+        is_delete:false
       }
     } )
     this.success( res )

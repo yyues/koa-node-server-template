@@ -27,4 +27,8 @@ module.exports = {
     enable: true,
     package: 'egg-validate',
   },
+  alinode: {
+    enable: true,
+    package: 'egg-alinode',
+  }
 };

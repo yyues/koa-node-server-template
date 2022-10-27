@@ -15,6 +15,8 @@ module.exports = app => {
     login_time: DATE, // 用户 登录时间
     login_expiration_time: DATE, // 用户 登录过期时间
     login_ip: STRING, // 用户 地址
+    province: { type: STRING, allowNull: true }, // 用户当前所在省份
+    city: { type: STRING, allowNull: true }, // 用户当前所在城市
     openid: STRING, // wx openid
     union_id: { type: STRING, allowNull: true }, // 微信 用户 唯一 unionId
     session_key: STRING, // wx session_key

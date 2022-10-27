@@ -20,6 +20,7 @@ module.exports = {
       add_new_default_url: { type: STRING, allowNull: true }, // 添加默认url
       edit_default_url: { type: STRING, allowNull: true }, // 编辑默认url
       music_default_url: { type: STRING, allowNull: true }, // 音乐默认url
+      login_bg_url: { type: STRING, allowNull: true }, // 登录背景默认url
       create_time: DATE( 6 ),
       update_time: DATE( 6 ),
     }, {
