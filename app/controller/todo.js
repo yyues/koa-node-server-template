@@ -96,7 +96,8 @@ class todoController extends Controller {
       end_time,
       description
     } = ctx.request.body
-    const user = await this.currentUser()
+    const { uid } = await this.currentUser()
+
     console.log( ctx.request.body, '请求参数' )
 
     if ( task_type !== 'person' ) {
@@ -116,7 +117,8 @@ class todoController extends Controller {
     }
     // 设置数据库 保存参数
     const createData = {
-      uid: (await this.currentUser()).uid, // 当前登录人uid
+      ...ctx.request.body,
+      // uid: (await this.currentUser()).uid, // 当前登录人uid
       name: 'system auto name', // 系统自动生成的 name 名称
       // content, // 任务内容
       level, // 任务优先级，歧视是个数字
@@ -124,7 +126,7 @@ class todoController extends Controller {
       task_type,// 任务类型 默认 person
       labels: labels ?? [], // 动态标签,
       is_current_user: true,
-      create_uid: user.uid,
+      create_uid: uid,
       remind_time,
       start_time,
       end_time,
@@ -160,7 +162,7 @@ class todoController extends Controller {
         for (let i = 0; i < task_cycle; i++) {
           await ctx.model.Todo.create( {
             ...createData,
-            execute_time: this.moment( data.execute_time ).add( i, 'days' ).format('YYYY-MM-DD'),
+            execute_time: this.moment( data.execute_time ).add( i, 'days' ).format( 'YYYY-MM-DD' ),
             parent_id: data.id,
             has_children: false,
             is_can_invite: false, // 作为子任务，不能邀请他人参与
@@ -174,7 +176,8 @@ class todoController extends Controller {
         ...createData,
         // 任务内容及长任务存储方式
         content: is_long_todo ? '' : content,
-        long_content: is_long_todo ? content : ''
+        long_content: is_long_todo ? content : '',
+        create_uid: uid
       } )
       this.success( data )
       return
@@ -217,6 +220,29 @@ class todoController extends Controller {
       where: { id }
     } )
     this.success( { message: '删除成功！' } )
+  }
+
+  async receiveInvite() {
+    const { ctx } = this
+    const { uid, avatar_url } = await this.currentUser()
+    const id = crx.request.body.id
+    if ( !id ) return this.error( 'id不存在', [] )
+    let { invite_uid, invite_url, current_invite_length } = await ctx.model.Todo.findOne( {
+      where: { id, is_delete: false }
+    } )
+    // 更新数据
+    invite_uid.push( uid )
+    invite_url.push( avatar_url )
+    current_invite_length = current_invite_length + 1
+    //更新数据库
+    const res = await ctx.model.Todo.update( {
+      invite_uid, invite_url, current_invite_length
+    } )
+    this.success( res )
+  }
+
+  async sendInvite() {
+    //  新建一条发送的消息
   }
 }
 

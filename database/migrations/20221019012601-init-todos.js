@@ -22,6 +22,8 @@ module.exports = {
       remark: { type: STRING( 19 ), allowNull: true }, // 待办的备注， 长度应该不长，限制19
       start_time: { type: STRING( 16 ), allowNull: true }, // 开始时间 ‘10：00’
       end_time: { type: STRING( 16 ), allowNull: true }, // 结束时间 ‘10：00’
+      deadline: { type: STRING( 16 ), allowNull: true },// 时间截止线， 不一定非要选择开始世界和结束时间，而是选择一个截止时间
+      is_deadline: { type: BOOLEAN, defaultValue: false }, // 是否是截止时间， 目前不是的，目前默认选择 的是时间范围
       execute_time: { type: STRING, allowNull: true, }, // 任务的执行时间，前期可不做要求
       is_cycle_todo: { type: BOOLEAN, defaultValue: false }, // 是否是 周期任务，指可以创建一系列的周期任务，简化前端判断
       has_children: { type: BOOLEAN, defaultValue: false }, // 是否含有子任务的判断，主要是关联周期任务里的子任务
@@ -56,10 +58,23 @@ module.exports = {
           this.setDataValue( 'invite_uid', val.join( ';' ) );
         },
       }, //  邀请人 uid
+      current_invite_length: { type: INTEGER, defaultValue: 0 }, // 当前在任务里的任务
+      invite_url: {
+        type: STRING, allowNull: true,
+        get() {
+          const data = this.getDataValue( 'invite_url' );
+          return data ? data.split( ';' ) : [];
+        },
+        set( val = [] ) {
+          this.setDataValue( 'invite_url', val.join( ';' ) );
+        },
+      }, //  邀请人 的头像集合
       invite_time: { type: DATE, allowNull: true }, // 发起 邀请时间
       task_status: { type: STRING( 10 ), defaultValue: 'running' }, // 创建完任务后，状态就更新为进行中
       task_type: { type: STRING( 6 ), defaultValue: 'person' }, // 任务类型，一般是代表个人的
       task_from_id: { type: STRING, allowNull: true }, // 待办的所属圈子id
+      bg_url: { type: STRING, allowNull: true }, // 我可以有一个背景图片
+      primary_color: { type: STRING, allowNull: true }, // 同样可以有一个 主体颜色，
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
       is_delay: { type: BOOLEAN, defaultValue: false }, // 是否延期
       delay_time: { type: STRING, defaultValue: '还没有逾期哦！' },// 逾期时间
