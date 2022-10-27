@@ -30,7 +30,7 @@ class todoController extends Controller {
         //     [Op.like]: keyword
         //   }
         // },
-        uid
+        create_uid: uid
       },
       // order: [
       //   [ 'create_time' ],
@@ -96,7 +96,7 @@ class todoController extends Controller {
       end_time,
       description
     } = ctx.request.body
-    const { uid } = await this.currentUser()
+    const { uid, avatar_url } = await this.currentUser()
 
     console.log( ctx.request.body, '请求参数' )
 
@@ -127,6 +127,7 @@ class todoController extends Controller {
       labels: labels ?? [], // 动态标签,
       is_current_user: true,
       create_uid: uid,
+      create_url: avatar_url,
       remind_time,
       start_time,
       end_time,
