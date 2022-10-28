@@ -37,7 +37,7 @@ module.exports = app => {
     is_exist_remind: { type: BOOLEAN, defaultValue: false }, // 默认是不设置打卡提醒的，似乎这个要用到公众号
     task_cycle: { type: INTEGER, defaultValue: 1 }, // 任务周期 一般一个任务只有一天的周期， 单位天， 类型 number
     is_multiplayer: { type: BOOLEAN, defaultValue: false }, // 是否是多人任务
-    is_current_user: { type: BOOLEAN, defaultValue: false }, // 是否是当前用户创建的todo
+    is_current_user: { type: BOOLEAN, defaultValue: true }, // 是否是当前用户创建的todo
     is_can_invite: { type: BOOLEAN, defaultValue: true }, // 是否可以邀请多人参与
     is_invited: { type: BOOLEAN, defaultValue: false }, // 是否已经邀请过他人参与
     max_user_count: { type: INTEGER, defaultValue: 19 }, // 任务最多参与人数，默认19人吧
