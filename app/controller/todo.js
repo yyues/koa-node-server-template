@@ -43,7 +43,7 @@ class todoController extends Controller {
 
   async findOne() {
     const { ctx } = this
-    const id = ctx.param.id
+    const id = ctx.query.id
     if ( !id ) {
       this.error( 'id不存在', [] )
       return
