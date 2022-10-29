@@ -226,7 +226,7 @@ class todoController extends Controller {
   async receiveInvite() {
     const { ctx } = this
     const { uid, avatar_url } = await this.currentUser()
-    const id = crx.request.body.id
+    const id = ctx.request.body.id
     if ( !id ) return this.error( 'id不存在', [] )
     let { invite_uid, invite_url, current_invite_length } = await ctx.model.Todo.findOne( {
       where: { id, is_delete: false }
@@ -244,6 +244,22 @@ class todoController extends Controller {
 
   async sendInvite() {
     //  新建一条发送的消息
+  }
+
+  async getTodoByDate() {
+    const ctx = this.ctx
+    const { date } = ctx.query
+    const { uid } = await this.currentUser()
+    const defaultDate = this.moment().format( 'YYYY-MM-DD' )
+
+    const res = await ctx.model.Todo.findAll( {
+      where: {
+        create_uid: uid,
+        is_delete: false,
+        execute_time: date || defaultDate
+      }
+    } )
+    this.success( res )
   }
 }
 
