@@ -24,7 +24,7 @@ module.exports = appInfo => {
       },
     },
     loginValidate: {
-      whiteList: [ '/wx-login', '/upload' ],
+      whiteList: [ '/wx-login', ],
     },
     errorHandler: {},
     proxy: true,

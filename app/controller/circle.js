@@ -8,24 +8,24 @@ class CircleController extends Controller {
     const { ctx } = this;
     const { Op } = this.app.Sequelize
     const rules = {
-      page: { type: 'number', required: true },
-      limit: { type: 'number', required: true },
-      keyword: { type: 'number', required: false },
+      page: { type: 'string', required: true },
+      limit: { type: 'string', required: true },
+      keyword: { type: 'string', required: false },
     };
     // 校验  参数
-    const val = this.Validate( rules, ctx.param )
+    const val = this.Validate( rules, ctx.query )
     if ( !val.status ) {
       // 校验 不通过
       this.error( '校验不通过', val.error )
       return
     }
-    const { page, limit, keyword } = ctx.param
+    const { page, limit, keyword } = ctx.query
     const res = await ctx.model.Circle.findAndCountAll( {
       where: {
         is_delete: false,
-        content: {
-          [Op.like]: keyword
-        },
+        // content: {
+        //   [Op.like]: keyword
+        // },
         publish_time: {
           [Op.lte]: new Date().getTime(),
         }
@@ -33,8 +33,8 @@ class CircleController extends Controller {
       order: [
         [ 'create_time' ],
       ],
-      offset: page,
-      limit
+      offset: Number( page ),
+      limit: Number( limit ),
     } )
     this.success( res )
   }
@@ -72,19 +72,16 @@ class CircleController extends Controller {
       name: { type: 'string', required: true },
       avatar_url: { type: 'string', required: true }
     }
-    const { name, avatar_url, id } = ctx.request.body
+    const { name, avatar_url, id, publish_time } = ctx.request.body
     let res
     // 新增
     if ( !id ) {
-      console.log( {
-        ...ctx.request.body,
-        create_uid: uid,
-        create_name: user_name
-      } )
       res = await ctx.model.Circle.create( {
         ...ctx.request.body,
         create_uid: uid,
-        create_name: user_name
+        create_name: user_name,
+        publish_time,
+        status: 're_publish', // 新建后修改成待发布的状态
       } )
       this.success( res )
       return
@@ -126,6 +123,18 @@ class CircleController extends Controller {
       where: { id }
     } )
     this.success( { message: '删除成功！' } )
+  }
+
+  async getAllUsers() {
+    const { ctx } = this
+    const { uid } = await this.currentUser()
+    const res = await ctx.model.Circle.findAll( {
+      where: {
+        create_uid: uid,
+        is_delete: false,
+      }
+    } )
+    this.success( res )
   }
 }
 

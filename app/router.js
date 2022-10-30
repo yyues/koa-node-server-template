@@ -20,6 +20,7 @@ module.exports = app => {
   router.get( '/todo/get-by-date', controller.todo.getTodoByDate )
   //  圈子相关的接口
   router.get( '/circle/getList', controller.circle.getList );
+  router.get( '/circle/get-user-circle', controller.circle.getList );
   router.post( '/circle/save', controller.circle.save );
   router.post( '/circle/delete', controller.circle.delete );
   router.get( '/circle/find', controller.circle.findOne );

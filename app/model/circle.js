@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = app => {
-  const { STRING, INTEGER, DATE, BOOLEAN, UUID, UUIDV4 } = app.Sequelize;
+  const { STRING, INTEGER, DATE, BOOLEAN, UUID, UUIDV4, BIGINT } = app.Sequelize;
 
   const Circle = app.model.define( 'circle', {
     id: { type: UUID, defaultValue: UUIDV4, primaryKey: true }, // 圈子的id， 唯一主键
@@ -13,6 +13,7 @@ module.exports = app => {
     overdue_time: { type: DATE, allowNull: true }, // 圈子过期时间，默认可以不设置
     avatar_url: { type: STRING, allowNull: false },// 圈子头像
     is_private: { type: BOOLEAN, defaultValue: false }, // 是否是私密的
+    current_number: { type: INTEGER, defaultValue: 1 }, // 当前圈子的人数
     max_persons: { type: INTEGER, defaultValue: 50 }, // 圈子最多人数
     labels: {
       type: STRING,
@@ -24,7 +25,7 @@ module.exports = app => {
         this.setDataValue( 'labels', val.join( ';' ) );
       },
     }, // 动态标签
-    status: { type: STRING( 10 ), defaultValue: 'created' }, // 圈子 状态
+    status: { type: STRING( 10 ), defaultValue: 'created' }, // 圈子 状态 published 已发布
     wx_image_url: { type: STRING, allowNull: true }, // 微信群聊名片url
     wx_image_out: { type: DATE( 6 ), allowNull: true }, // 群聊图片过期时间
     wx_master: { type: STRING, allowNull: true }, // 圈主 微信
@@ -34,7 +35,7 @@ module.exports = app => {
     star_count: { type: INTEGER, defaultValue: 0 }, // 点赞数量
     is_stared: { type: BOOLEAN, defaultValue: true }, // 当前用户是否点赞过了
     is_timing_publish: { type: BOOLEAN, defaultValue: false }, // 是否定时创建圈子
-    publish_time: { type: INTEGER, allowNull: true }, //  定时发布 时间， 一般都是立刻创建圈子,存时间戳
+    publish_time: { type: BIGINT( 12 ), allowNull: true }, //  定时发布 时间， 一般都是立刻创建圈子,存时间戳
     description: { type: STRING( 49 ), allowNull: true }, // 描述，长度49字符
     remark: { type: STRING( 19 ), allowNull: true }, // 备注， 长度应该不长，限制19
     is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true

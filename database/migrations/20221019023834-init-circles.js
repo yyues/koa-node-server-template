@@ -9,7 +9,7 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    const { INTEGER, DATE, STRING, BOOLEAN, UUID, UUIDV4 } = Sequelize;
+    const { INTEGER, DATE, STRING, BOOLEAN, UUID, UUIDV4, BIGINT } = Sequelize;
     await queryInterface.createTable( 'circles', {
       id: { type: UUID, defaultValue: UUIDV4, primaryKey: true }, // 圈子的id， 唯一主键
       create_uid: { type: INTEGER, allowNull: false }, // 圈主 的 uid
@@ -20,6 +20,7 @@ module.exports = {
       overdue_time: { type: DATE( 6 ), allowNull: true }, // 圈子过期时间，默认可以不设置
       avatar_url: { type: STRING, allowNull: false },// 圈子头像
       is_private: { type: BOOLEAN, defaultValue: false }, // 是否是私密的
+      current_number: { type: INTEGER, defaultValue: 1 }, // 当前圈子的人数
       max_persons: { type: INTEGER, defaultValue: 50 }, // 圈子最多人数
       labels: {
         type: STRING,
@@ -41,7 +42,7 @@ module.exports = {
       star_count: { type: INTEGER, defaultValue: 0 }, // 点赞数量
       is_stared: { type: BOOLEAN, defaultValue: true }, // 当前用户是否点赞过了
       is_timing_publish: { type: BOOLEAN, defaultValue: false }, // 是否定时创建圈子
-      publish_time: { type: INTEGER, allowNull: true }, //  定时发布 时间， 一般都是立刻创建圈子, 时间戳存储
+      publish_time: { type: BIGINT( 12 ), allowNull: true }, //  定时发布 时间， 一般都是立刻创建圈子, 时间戳存储
       description: { type: STRING( 49 ), allowNull: true }, // 描述，长度49字符
       remark: { type: STRING( 19 ), allowNull: true }, // 备注， 长度应该不长，限制19
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
