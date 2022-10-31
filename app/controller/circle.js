@@ -42,7 +42,7 @@ class CircleController extends Controller {
   async findOne() {
     const { ctx } = this
     const { Op } = this.app.Sequelize
-    const id = ctx.param.id
+    const id = ctx.query.id
     if ( !id ) {
       this.error( 'id不存在', [] )
       return
