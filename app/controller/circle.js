@@ -19,10 +19,11 @@ class CircleController extends Controller {
       this.error( '校验不通过', val.error )
       return
     }
-    const { page, limit, keyword } = ctx.query
-    const res = await ctx.model.Circle.findAndCountAll( {
+    const { page, limit, keyword, status } = ctx.query
+    const { count, rows } = await ctx.model.Circle.findAndCountAll( {
       where: {
         is_delete: false,
+        status,
         // content: {
         //   [Op.like]: keyword
         // },
@@ -36,7 +37,15 @@ class CircleController extends Controller {
       offset: Number( page ),
       limit: Number( limit ),
     } )
-    this.success( res )
+    //  对 数据里 的 发布时间 进行处理了
+    const data = rows.map( i => {
+      return {
+        ...i.toJSON(),
+        publish_time: this.moment( i.publish_time ).format( 'YYYY-MM-DD' )
+      }
+    } )
+    this.success( { count, rows: data } )
+    // this.success( res )
   }
 
   async findOne() {
@@ -61,7 +70,11 @@ class CircleController extends Controller {
       this.error( '数据库查无数据', [] )
       return
     }
-    this.success( res )
+    //  对 数据里 的 发布时间 进行处理了
+    this.success( {
+      ...res.toJSON(),
+      publish_time: this.moment( res.publish_time ).format( 'YYYY-MM-DD' )
+    } )
   }
 
   // 新增 - 修改
@@ -76,11 +89,12 @@ class CircleController extends Controller {
     let res
     // 新增
     if ( !id ) {
+      // 存 发布时间 的时候 把 发布时期转化为 时间戳 方便查询
       res = await ctx.model.Circle.create( {
         ...ctx.request.body,
         create_uid: uid,
         create_name: user_name,
-        publish_time,
+        publish_time: new Date( publish_time ).getTime(),
         status: 're_publish', // 新建后修改成待发布的状态
       } )
       this.success( res )
@@ -89,6 +103,7 @@ class CircleController extends Controller {
     //修改
     res = await ctx.model.Circle.update( {
       ...ctx.request.body,
+      publish_time: new Date( publish_time ).getTime(),
     }, {
       where: {
         id,
@@ -134,7 +149,14 @@ class CircleController extends Controller {
         is_delete: false,
       }
     } )
-    this.success( res )
+    //  对 数据里 的 发布时间 进行处理了
+    const rows = res.map( i => {
+      return {
+        ...i.toJSON(),
+        publish_time: this.moment( i.publish_time ).format( 'YYYY-MM-DD' )
+      }
+    } )
+    this.success( rows )
   }
 }
 
