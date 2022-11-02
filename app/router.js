@@ -17,7 +17,8 @@ module.exports = app => {
   router.get( '/todo/find', controller.todo.findOne );
   router.post( '/todo/receive-invite', controller.todo.receiveInvite );
   router.post( '/todo/send-invite', controller.todo.sendInvite );
-  router.get( '/todo/get-by-date', controller.todo.getTodoByDate )
+  router.get( '/todo/get-by-date', controller.todo.getTodoByDate );
+  router.post( '/todo/delay', controller.todo.delayTodo );
   //  圈子相关的接口
   router.get( '/circle/getList', controller.circle.getList );
   router.get( '/circle/get-user-circle', controller.circle.getAllUsers );

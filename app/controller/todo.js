@@ -261,6 +261,20 @@ class todoController extends Controller {
     } )
     this.success( res )
   }
+
+  async delayTodo() {
+    const ctx = this.ctx
+    const { id, num } = ctx.request.body
+    if ( !id ) return this.error( 'id不存在', [] )
+    const res = await ctx.model.Todo.findOne( {
+      where: { id }
+    } )
+    await ctx.model.Todo.update( {
+      ...res.toJSON(),
+      execute_time: this.moment( res.execute_time ).add( Number( num ) || 1, 'days' ).format( "YYYY-MM-DD" )
+    }, { where: { id } } )
+    this.success( { message: '延迟成功' } )
+  }
 }
 
 module.exports = todoController;

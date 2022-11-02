@@ -96,6 +96,7 @@ class CircleController extends Controller {
         create_name: user_name,
         publish_time: new Date( publish_time ).getTime(),
         status: 're_publish', // 新建后修改成待发布的状态
+        is_current_user: true
       } )
       this.success( res )
       return
@@ -104,6 +105,7 @@ class CircleController extends Controller {
     res = await ctx.model.Circle.update( {
       ...ctx.request.body,
       publish_time: new Date( publish_time ).getTime(),
+
     }, {
       where: {
         id,

@@ -27,7 +27,7 @@ module.exports = app => {
     }, // 动态标签
     status: { type: STRING( 10 ), defaultValue: 'created' }, // 圈子 状态 published 已发布
     wx_image_url: { type: STRING, allowNull: true }, // 微信群聊名片url
-    wx_image_out: { type: DATE( 6 ), allowNull: true }, // 群聊图片过期时间
+    wx_image_out: { type: STRING, allowNull: true }, // 群聊图片过期时间
     wx_master: { type: STRING, allowNull: true }, // 圈主 微信
     wx_mark: { type: STRING, allowNull: true }, // 圈主 微信备注
     is_master: { type: BOOLEAN, defaultValue: false }, // 是否是管方发布的
