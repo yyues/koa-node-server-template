@@ -223,45 +223,73 @@ class todoController extends Controller {
     this.success( { message: '删除成功！' } )
   }
 
+  // 接受邀请
   async receiveInvite() {
     const { ctx } = this
     const { uid, avatar_url } = await this.currentUser()
+    // 需要调整
     const id = ctx.request.body.id
     if ( !id ) return this.error( 'id不存在', [] )
-    let { invite_uid, invite_url, current_invite_length } = await ctx.model.Todo.findOne( {
-      where: { id, is_delete: false }
+    // 接受邀请 ，表示新建一条数据，存在关联的数据
+    const res = await ctx.model.Todo.findOne( {
+      where: {
+        id,
+        is_delete: false
+      }
     } )
-    // 更新数据
-    invite_uid.push( uid )
-    invite_url.push( avatar_url )
-    current_invite_length = current_invite_length + 1
-    //更新数据库
-    const res = await ctx.model.Todo.update( {
-      invite_uid, invite_url, current_invite_length
-    } )
-    this.success( res )
+    const param = {
+      create_uid: res.create_uid,
+      create_url: res.create_url,
+      name: res.name,
+      content: res.content,
+      is_long_todo: res.is_long_todo,
+      description: res.description,
+      start_time: res.start_time,
+      end_time: res.end_time,
+      deadline: res.deadline,
+      is_deadline: res.is_deadline,
+      execute_time: res.execute_time,
+      is_cycle_todo: res.is_cycle_todo,
+      task_cycle: res.task_cycle,
+      parent_id: id,
+      labels: res.labels,
+      is_current_user: false,
+      is_can_invite: false,
+      is_invited: false,
+      is_delay: res.is_delay,
+      delay_time: this.moment().diff( res.execute_time )
+    }
+    await ctx.model.Todo.create( param )
+    this.success( { message: '接受邀请成功' } )
   }
 
+  // 发起邀请
   async sendInvite() {
     //  新建一条发送的消息
   }
 
+  // 获取今日待办
   async getTodoByDate() {
     const ctx = this.ctx
-    const { date } = ctx.query
+    const { date, task_status } = ctx.query
     const { uid } = await this.currentUser()
     const defaultDate = this.moment().format( 'YYYY-MM-DD' )
-
+    const param = {
+      create_uid: uid,
+      is_delete: false,
+      execute_time: date || defaultDate
+    }
+    if ( task_status ) {
+      param.task_status = task_status
+    }
     const res = await ctx.model.Todo.findAll( {
-      where: {
-        create_uid: uid,
-        is_delete: false,
-        execute_time: date || defaultDate
-      }
+      where: param,
+      order: [ 'create_time' ]
     } )
     this.success( res )
   }
 
+  // 延迟 待办
   async delayTodo() {
     const ctx = this.ctx
     const { id, num } = ctx.request.body
@@ -273,7 +301,40 @@ class todoController extends Controller {
       ...res.toJSON(),
       execute_time: this.moment( res.execute_time ).add( Number( num ) || 1, 'days' ).format( "YYYY-MM-DD" )
     }, { where: { id } } )
-    this.success( { message: '延迟成功' } )
+    // 如果是多人任务 是否要统一延迟  ???? 提醒不?
+    // this.success(  { message: '延迟成功' } )
+  }
+
+  // 完成任务
+  async finishTodo() {
+    const ctx = this.ctx
+    const { uid, avatar_url } = await this.currentUser()
+    const id = ctx.request.body.id
+    if ( !id ) return this.error( 'id不存在', [] )
+    //  判断是不是多人任务， 先判断不是的
+    const { is_multiplayer, create_uid, parent_id } = await ctx.model.Todo.findOne( {
+      where: { id, is_delete: false }
+    } )
+    // 再优化逻辑， 先 统一更新自己的状态，然后 判断是不是是多人任务，
+    // 是多人任务的话，就把 父任务 对应的数据更新就行
+    await ctx.model.Todo.update( {
+      task_status: 'finish'
+    }, {
+      where: { id, is_delete: false }
+    } )
+    if ( parent_id ) {
+      //   多人任务的话 需要找到 父任务更新状态
+      const { finish_number } = await ctx.model.Todo.findOne( {
+        where: { id: parent_id, is_delete: false }
+      } )
+      // 更新 父任务里的完成人数而已
+      await ctx.model.Todo.update( {
+        finish_number: finish_number + 1
+      }, {
+        where: { id: parent_id, is_delete: false }
+      } )
+    }
+    this.success( { message: '完成待办！' } )
   }
 }
 

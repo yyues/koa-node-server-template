@@ -58,7 +58,8 @@ module.exports = {
           this.setDataValue( 'invite_uid', val.join( ';' ) );
         },
       }, //  邀请人 uid
-      current_invite_length: { type: INTEGER, defaultValue: 0 }, // 当前在任务里的任务
+      team_number: { type: INTEGER, defaultValue: 1 }, // 接受邀请的团队总人数，默认是1 因为 创建的主人默认参与了
+      finish_number: { type: INTEGER, defaultValue: 1 }, // 已完成的人数，只有多人任务才会有，默认是1 因为 创建的主人默认参与了
       invite_url: {
         type: STRING, allowNull: true,
         get() {
