@@ -22,7 +22,7 @@ class todoController extends Controller {
     }
     const { page, limit, keyword } = ctx.query
     const { uid } = await this.currentUser()
-    const res = await ctx.model.Todo.findAndCountAll( {
+    const { count, rows } = await ctx.model.Todo.findAndCountAll( {
       where: {
         is_delete: false,
         // ...!!keyword && {
@@ -38,7 +38,13 @@ class todoController extends Controller {
       offset: Number( page ),
       limit: Number( limit )
     } )
-    this.success( res )
+    const q = rows.map( (i => {
+      return {
+        ...i.toJSON(),
+        is_start: this.moment().isBefore( i.execute_time )
+      }
+    }) )
+    this.success( { count, rows: q } )
   }
 
   async findOne() {
@@ -298,7 +304,6 @@ class todoController extends Controller {
       where: { id }
     } )
     await ctx.model.Todo.update( {
-      ...res.toJSON(),
       execute_time: this.moment( res.execute_time ).add( Number( num ) || 1, 'days' ).format( "YYYY-MM-DD" )
     }, { where: { id } } )
     // 如果是多人任务 是否要统一延迟  ???? 提醒不?
