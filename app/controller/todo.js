@@ -60,11 +60,21 @@ class todoController extends Controller {
         is_delete: false
       }
     } )
+    // 需要查到 创建者 的 username
+    const { user_name } = await ctx.model.User.findOne( {
+      where: {
+        uid: res.create_uid
+      }
+    } )
+
     if ( !res ) {
       this.error( '数据库查无数据', [] )
       return
     }
-    this.success( res )
+    this.success( {
+      ...res.toJSON(),
+      create_name: user_name
+    } )
   }
 
   // 新增 - 修改
