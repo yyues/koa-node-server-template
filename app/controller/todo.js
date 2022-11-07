@@ -79,7 +79,7 @@ class todoController extends Controller {
       execute_time: { type: 'string', required: true },// 执行的时间
       is_cycle_todo: { type: 'boolean', required: false }, // 是否是 周期任务
       labels: { type: 'array', required: false },
-      remind_time: { type: 'date', required: false }, // 提醒时间 可以不需要
+      remind_time: { type: 'string', required: false }, // 提醒时间 可以不需要
       task_type: { type: 'string', required: true }, // 任务类型，表示所属类型或者所属圈子
       task_from_id: { type: 'string', required: false }, // 归属的圈子id 需要 连表查询所属的数据
       is_multiplayer: { type: 'boolean', required: false }, // 是否是多人任务
@@ -191,8 +191,7 @@ class todoController extends Controller {
     }
     // 修改
     const res = await ctx.model.Todo.update( {
-      ...ctx.request.body,
-      is_current_user: user.uid === ctx.request.body.uid
+      ...ctx.request.body
     }, {
       where: {
         id,
@@ -340,6 +339,20 @@ class todoController extends Controller {
       } )
     }
     this.success( { message: '完成待办！' } )
+  }
+
+  // 设置提醒时间
+  async setClockTimeById() {
+    const ctx = this.ctx
+    const { id, remind_time } = ctx.request.body
+    const formatTime = this.moment( remind_time ).format( 'YYYY-MM-DD HH:mm' )
+    await ctx.model.Todo.update( {
+      remind_time: formatTime,
+      is_exist_remind: true
+    }, { where: { id, is_delete: false } } )
+    // 然后应该做个 定时任务，在 两小时发一次提醒
+    console.log( { formatTime } )
+    this.success( [] )
   }
 }
 

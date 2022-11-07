@@ -20,6 +20,7 @@ module.exports = app => {
   router.get( '/todo/get-by-date', controller.todo.getTodoByDate );
   router.post( '/todo/delay', controller.todo.delayTodo );
   router.post( '/todo/finish', controller.todo.finishTodo );
+  router.post( '/todo/set-clock', controller.todo.setClockTimeById );
   //  圈子相关的接口
   router.get( '/circle/getList', controller.circle.getList );
   router.get( '/circle/get-user-circle', controller.circle.getAllUsers );
