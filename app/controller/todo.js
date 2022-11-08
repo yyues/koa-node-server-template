@@ -316,7 +316,7 @@ class todoController extends Controller {
       execute_time: this.moment( res.execute_time ).add( Number( num ) || 1, 'days' ).format( "YYYY-MM-DD" )
     }, { where: { id } } )
     // 如果是多人任务 是否要统一延迟  ???? 提醒不?
-    // this.success(  { message: '延迟成功' } )
+    this.success(  { message: '延迟成功' } )
   }
 
   // 完成任务
