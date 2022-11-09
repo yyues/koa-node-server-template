@@ -72,7 +72,7 @@ module.exports = {
       }, //  邀请人 的头像集合
       invite_time: { type: DATE, allowNull: true }, // 发起 邀请时间
       task_status: { type: STRING( 10 ), defaultValue: 'running' }, // 创建完任务后，状态就更新为进行中
-      task_type: { type: STRING( 6 ), defaultValue: 'person' }, // 任务类型，一般是代表个人的
+      task_type: { type: STRING( 19 ), defaultValue: 'person' }, // 任务类型，一般是代表个人的
       task_from_id: { type: STRING, allowNull: true }, // 待办的所属圈子id
       bg_url: { type: STRING, allowNull: true }, // 我可以有一个背景图片
       primary_color: { type: STRING, allowNull: true }, // 同样可以有一个 主体颜色，
