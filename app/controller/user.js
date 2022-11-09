@@ -51,14 +51,17 @@ class UserController extends Controller {
       // 表示当前没有用户，新建了一个用户
     } else {
       // 更新用户登录时间
-      await ctx.model.User.update( { login_time: new Date(), login_status: true }, {
+      await ctx.model.User.update( {
+        login_time: new Date(), login_status: true, user_name: userInfo.nickName, avatar_url: userInfo.avatarUrl,
+      }, {
         where: {
           openid,
           is_delete: false,
         },
       } );
     }
-    this.success( dbRes );
+    const res = await ctx.model.User.findOne( { where: { openid } } )
+    this.success( res );
   }
 
   async WxAuthorize() {
@@ -76,7 +79,7 @@ class UserController extends Controller {
     const res = await ctx.model.User.update( ctx.request.body, {
       where: { uid, is_delete: false }
     } )
-    this.success(res)
+    this.success( res )
   }
 
 }

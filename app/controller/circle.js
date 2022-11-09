@@ -52,6 +52,7 @@ class CircleController extends Controller {
     const { ctx } = this
     const { Op } = this.app.Sequelize
     const id = ctx.query.id
+    const { uid } = await this.currentUser()
     if ( !id ) {
       this.error( 'id不存在', [] )
       return
@@ -70,9 +71,17 @@ class CircleController extends Controller {
       this.error( '数据库查无数据', [] )
       return
     }
+    // 需要查到 创建者 的 avatar_url
+    const { avatar_url } = await ctx.model.User.findOne( {
+      where: {
+        uid: res.create_uid
+      }
+    } )
     //  对 数据里 的 发布时间 进行处理了
     this.success( {
       ...res.toJSON(),
+      create_url: avatar_url,
+      is_current_user: res.create_uid === uid,
       publish_time: this.moment( res.publish_time ).format( 'YYYY-MM-DD' )
     } )
   }
@@ -144,12 +153,15 @@ class CircleController extends Controller {
 
   async getAllUsers() {
     const { ctx } = this
+    const status = ctx.query.status
     const { uid } = await this.currentUser()
+    const param = {
+      create_uid: uid,
+      is_delete: false,
+    }
+    if ( status ) param.status = status
     const res = await ctx.model.Circle.findAll( {
-      where: {
-        create_uid: uid,
-        is_delete: false,
-      }
+      where: param
     } )
     //  对 数据里 的 发布时间 进行处理了
     const rows = res.map( i => {
