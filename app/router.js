@@ -27,6 +27,8 @@ module.exports = app => {
   router.post( '/circle/save', controller.circle.save );
   router.post( '/circle/delete', controller.circle.delete );
   router.get( '/circle/find', controller.circle.findOne );
+  router.post( '  /circle/join', controller.circle.join );
+
   //  动态相关的接口
   router.get( '/square/getList', controller.square.getList );
   router.post( '/square/save', controller.square.save );

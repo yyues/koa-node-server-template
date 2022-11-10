@@ -37,7 +37,7 @@ module.exports = app => {
     avatar_url: { type: STRING, allowNull: false },// 圈子头像
     is_private: { type: BOOLEAN, defaultValue: false }, // 是否是私密的
     current_number: { type: INTEGER, defaultValue: 1 }, // 当前圈子的人数
-    max_persons: { type: INTEGER, defaultValue: 50 }, // 圈子最多人数
+    max_number: { type: INTEGER, defaultValue: 50 }, // 圈子最多人数
     labels: {
       type: STRING,
       allowNull: true,

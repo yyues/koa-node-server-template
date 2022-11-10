@@ -5,7 +5,7 @@ const Controller = require( '../core/base_controller' );
 class todoController extends Controller {
   // 查询列表接口---- get
   async getList() {
-    const { ctx } = this;
+    const ctx = this.ctx;
     const { Op } = this.app.Sequelize
     const rules = {
       page: { type: 'string', required: true },
@@ -14,33 +14,46 @@ class todoController extends Controller {
     };
     // 校验  参数
     const val = this.Validate( rules, ctx.query )
-    console.log( ctx.query, 'dddd' )
     if ( !val.status ) {
       // 校验 不通过
       this.error( '校验不通过', val.error )
       return
     }
-    const { page, limit, keyword } = ctx.query
+    const { page, limit, keyword, task_from_id } = ctx.query
     const { uid } = await this.currentUser()
+    // 修改 查询逻辑
+    const query = {
+      is_delete: false,
+    }
+    if ( task_from_id ) {
+      // 如果是圈子 下面的id 则 只需要 form_id
+      query.task_from_id = task_from_id
+    } else {
+      // 否则 就是查询用户自己的
+      query.create_uid = uid
+    }
     const { count, rows } = await ctx.model.Todo.findAndCountAll( {
       where: {
-        is_delete: false,
-        // ...!!keyword && {
-        //   content: {
-        //     [Op.like]: keyword
-        //   }
-        // },
-        create_uid: uid
+        ...query,
+        [Op.or]: [
+          { create_uid: uid },
+          // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
+          {
+            current_uid: {
+              [Op.like]: '%' + uid,
+            }
+          }
+          //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
+        ]
       },
-      // order: [
-      //   [ 'create_time' ],
-      // ],
+      order: [ 'create_time' ],
       offset: Number( page ),
       limit: Number( limit )
     } )
     const q = rows.map( (i => {
       return {
         ...i.toJSON(),
+        is_current_user: i.create_uid === uid,
         is_start: this.moment().isBefore( i.execute_time )
       }
     }) )
@@ -54,6 +67,7 @@ class todoController extends Controller {
       this.error( 'id不存在', [] )
       return
     }
+    const { uid } = await this.currentUser()
     const res = await ctx.model.Todo.findOne( {
       where: {
         id,
@@ -73,6 +87,7 @@ class todoController extends Controller {
     }
     this.success( {
       ...res.toJSON(),
+      is_current_user: res.create_uid === uid,
       create_name: user_name
     } )
   }
@@ -159,7 +174,7 @@ class todoController extends Controller {
     if ( is_multiplayer === false ) {
       createData.is_multiplayer = false
       createData.is_can_invite = false // 不能邀请他人
-      createData.max_user_count = 0
+      createData.max_number = 0
     }
     //  周期任务 ,必传周期时长
     if ( is_cycle_todo ) {
@@ -246,36 +261,25 @@ class todoController extends Controller {
     const id = ctx.request.body.id
     if ( !id ) return this.error( 'id不存在', [] )
     // 接受邀请 ，表示新建一条数据，存在关联的数据
-    const res = await ctx.model.Todo.findOne( {
+    const { current_uid, current_url, max_number, team_number } = await ctx.model.Todo.findOne( {
       where: {
         id,
         is_delete: false
       }
     } )
-    const param = {
-      create_uid: res.create_uid,
-      create_url: res.create_url,
-      name: res.name,
-      content: res.content,
-      is_long_todo: res.is_long_todo,
-      description: res.description,
-      start_time: res.start_time,
-      end_time: res.end_time,
-      deadline: res.deadline,
-      is_deadline: res.is_deadline,
-      execute_time: res.execute_time,
-      is_cycle_todo: res.is_cycle_todo,
-      task_cycle: res.task_cycle,
-      parent_id: id,
-      labels: res.labels,
-      is_current_user: false,
-      is_can_invite: false,
-      is_invited: false,
-      is_delay: res.is_delay,
-      delay_time: this.moment().diff( res.execute_time )
-    }
-    await ctx.model.Todo.create( param )
-    this.success( { message: '接受邀请成功' } )
+    if ( team_number >= max_number ) return this.error( '成员已满', [] )
+    // 不再新建 一条数据 而是更新用户当前的 成员信息
+    current_uid.push( uid )
+    current_url.push( avatar_url )
+    await ctx.model.Todo.update( {
+      current_uid, current_url, team_number: team_number + 1
+    }, {
+      where: {
+        id,
+        is_delete: false
+      }
+    } )
+    this.success( { message: '加入成功' } )
   }
 
   // 发起邀请
@@ -287,21 +291,43 @@ class todoController extends Controller {
   async getTodoByDate() {
     const ctx = this.ctx
     const { date, task_status } = ctx.query
+    const { Op } = this.app.Sequelize
+    const sequelize = this.app.Sequelize
     const { uid } = await this.currentUser()
     const defaultDate = this.moment().format( 'YYYY-MM-DD' )
     const param = {
-      create_uid: uid,
+      // create_uid: uid,
       is_delete: false,
       execute_time: date || defaultDate
     }
     if ( task_status ) {
       param.task_status = task_status
     }
+    // 修改 查找逻辑， 既要能找到自己创建的，也要能找到参加的多人待办
     const res = await ctx.model.Todo.findAll( {
-      where: param,
+      where: {
+        ...param,
+        [Op.or]: [
+          { create_uid: uid },
+          // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
+          {
+            current_uid: {
+              [Op.like]: '%' + uid,
+            }
+          }
+          //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
+        ]
+      },
       order: [ 'create_time' ]
     } )
-    this.success( res )
+    // 更新 当前用户查询状态
+    const req = res.map( i => {
+      return {
+        ...i.toJSON(),
+        is_current_user: i.create_uid === uid
+      }
+    } )
+    this.success( req )
   }
 
   // 延迟 待办
@@ -316,7 +342,7 @@ class todoController extends Controller {
       execute_time: this.moment( res.execute_time ).add( Number( num ) || 1, 'days' ).format( "YYYY-MM-DD" )
     }, { where: { id } } )
     // 如果是多人任务 是否要统一延迟  ???? 提醒不?
-    this.success(  { message: '延迟成功' } )
+    this.success( { message: '延迟成功' } )
   }
 
   // 完成任务

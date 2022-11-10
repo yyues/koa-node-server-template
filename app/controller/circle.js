@@ -19,14 +19,24 @@ class CircleController extends Controller {
       this.error( '校验不通过', val.error )
       return
     }
+    const { uid } = await this.currentUser()
     const { page, limit, keyword, status } = ctx.query
     const { count, rows } = await ctx.model.Circle.findAndCountAll( {
       where: {
         is_delete: false,
         status,
-        // content: {
-        //   [Op.like]: keyword
-        // },
+        content: {
+          [Op.like]: '%' + keyword
+        },
+        [Op.or]: [
+          { create_uid: uid },
+          {
+            current_uid: {
+              [Op.like]: '%' + uid,
+            }
+          }
+          //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
+        ],
         publish_time: {
           [Op.lte]: new Date().getTime(),
         }
@@ -154,6 +164,7 @@ class CircleController extends Controller {
   async getAllUsers() {
     const { ctx } = this
     const status = ctx.query.status
+    const { Op } = this.app.Sequelize
     const { uid } = await this.currentUser()
     const param = {
       create_uid: uid,
@@ -161,7 +172,19 @@ class CircleController extends Controller {
     }
     if ( status ) param.status = status
     const res = await ctx.model.Circle.findAll( {
-      where: param
+      where: {
+        ...param,
+        [Op.or]: [
+          { create_uid: uid },
+          // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
+          {
+            member_uid: {
+              [Op.like]: '%' + uid,
+            }
+          }
+          //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
+        ]
+      }
     } )
     //  对 数据里 的 发布时间 进行处理了
     const rows = res.map( i => {
@@ -171,6 +194,33 @@ class CircleController extends Controller {
       }
     } )
     this.success( rows )
+  }
+
+//  加入 邀请的话是直接进入的
+  async join() {
+    const ctx = this.ctx
+    const { id, type } = ctx.request.body
+    const { uid, avatar_url } = await this.currentUser()
+    if ( type ) {
+      return this.error( '需要主人同意才能加入', [] )
+    }
+    const { member_uid, member_avatar, current_number, max_number } = await ctx.model.Circle.findOne( {
+      where: {
+        id,
+        is_delete: false
+      }
+    } )
+    if ( current_number >= max_number ) return this.error( '人数超出限制啦', [] )
+    //  更新数据
+    member_uid.push( uid )
+    member_avatar.push( avatar_url )
+    await ctx.model.Circle.update( {
+      member_uid, member_avatar, current_number: current_number + 1
+    }, {
+      where: {
+        id, is_delete: false
+      }
+    } )
   }
 }
 
