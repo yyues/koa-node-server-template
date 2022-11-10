@@ -352,29 +352,43 @@ class todoController extends Controller {
     const id = ctx.request.body.id
     if ( !id ) return this.error( 'id不存在', [] )
     //  判断是不是多人任务， 先判断不是的
-    const { is_multiplayer, create_uid, parent_id } = await ctx.model.Todo.findOne( {
+    const {
+      is_multiplayer,
+      current_uid,
+      current_url,
+      team_number,
+      finish_number,
+      finish_uid,
+      finish_url,
+      task_status
+    } = await ctx.model.Todo.findOne( {
       where: { id, is_delete: false }
     } )
-    // 再优化逻辑， 先 统一更新自己的状态，然后 判断是不是是多人任务，
-    // 是多人任务的话，就把 父任务 对应的数据更新就行
-    await ctx.model.Todo.update( {
-      task_status: 'finish'
-    }, {
-      where: { id, is_delete: false }
-    } )
-    if ( parent_id ) {
-      //   多人任务的话 需要找到 父任务更新状态
-      const { finish_number } = await ctx.model.Todo.findOne( {
-        where: { id: parent_id, is_delete: false }
-      } )
-      // 更新 父任务里的完成人数而已
+    if ( !is_multiplayer ) {
+      if ( task_status !== 'running' ) return this.error( '状态错误', '' )
+      //   如果不是 多人任务，直接修改状态
       await ctx.model.Todo.update( {
-        finish_number: finish_number + 1
-      }, {
-        where: { id: parent_id, is_delete: false }
-      } )
+        task_status: 'finish'
+      }, { where: { id, is_delete: false } } )
+      return this.success( { message: '完成待办！' } )
     }
-    this.success( { message: '完成待办！' } )
+    // 是多人任务
+    const id_index = current_uid.findIndex( uid )
+    const url_index = current_url.findIndex( avatar_url )
+    if ( id_index == -1 ) return this.error( '当前待办已完成', '' )
+    current_uid.splice( id_index, 1 )
+    current_url.splice( url_index, 1 )
+    finish_url.push( avatar_url )
+    finish_uid.push( uid )
+    await ctx.model.Todo.update( {
+      current_uid,
+      current_url,
+      team_number: team_number - 1,
+      finish_number: finish_number + 1,
+      finish_uid,
+      finish_url
+    }, { where: { id, id_delete: false } } )
+    this.success( { message: '完成多人待办' } )
   }
 
   // 设置提醒时间
