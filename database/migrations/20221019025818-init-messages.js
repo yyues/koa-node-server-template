@@ -17,7 +17,7 @@ module.exports = {
       status: { type: STRING( 10 ), defaultValue: 'sending' }, // 状态， 发送中，已接收，撤回
       to_uid: { type: INTEGER, allowNull: true }, // 接收人 的
       to_name: { type: STRING, allowNull: false }, // 接收人 的  name
-      content: { type: STRING( 99 ), allowNull: false, defaultValue: '还没有内容哦！' }, //  内容
+      content: { type: STRING( 99 ), allowNull: true }, //  内容
       form_id: { type: STRING, allowNull: true, }, // 发起的 id ，可能是有 圈子发起的消息
       form_type: { type: STRING( 10 ), defaultValue: 'person' }, //个人 发起的  还是圈子 发起的
       overdue_time: { type: DATE, allowNull: true }, // 过期时间，默认可以不设置

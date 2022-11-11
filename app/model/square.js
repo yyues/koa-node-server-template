@@ -6,7 +6,7 @@ module.exports = app => {
   const Square = app.model.define( 'square', {
     id: { type: UUID, primaryKey: true, defaultValue: UUIDV4 }, // id
     uid: { type: INTEGER, allowNull: false }, // 创建人 的 uid
-    content: { type: STRING( 99 ), allowNull: false, defaultValue: '还没有内容哦！' }, // 内容
+    content: { type: STRING( 99 ), allowNull: true }, // 内容
     is_current_user: { type: BOOLEAN, defaultValue: false }, // 是否是当前用户创建的todo
     image_url: { type: STRING, allowNull: true }, // 微信群聊名片url
     overdue_time: { type: DATE( 6 ), allowNull: true }, // 圈子过期时间，默认可以不设置

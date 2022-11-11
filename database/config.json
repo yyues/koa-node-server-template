@@ -15,7 +15,7 @@
   },
   "production": {
     "username": "root",
-    "password": "123456",
+    "password": "938778575",
     "database": "wx-todo",
     "host": "127.0.0.1",
     "dialect": "mysql"
