@@ -37,7 +37,7 @@ module.exports = {
       create_time: DATE( 6 ),
       update_time: DATE( 6 ),
     }, {
-      // 不要忘记启用时间戳！g
+      // 不要忘记启用时间戳！
       timestamps: true,
       // 不想要 createdAt
       createdAt: 'create_time',
