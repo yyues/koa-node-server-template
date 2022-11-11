@@ -54,3 +54,19 @@ npx sequelize db:migrate
 ```
 CREATE DATABASE `wx-todo` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci';
 ```
+发布流程
+
+#### 1克隆 当前的项目
+
+#### 2删除git文件，然后 压缩上传到服务器
+
+#### 3npm install --production 执行安装命令
+
+大概率会有报错的
+
+#### 4 这时候有个报错，提示 `diagnostics_channel` 不存在,安装一下
+
+#### 5 这个时候还会有报错， 是 `egg-ci`缺失了，通过将本地的包上传到服务器
+#### 6 重新安装 `npm i diagnostics_channel`
+
+#### 至此完成，项目能正常允许
