@@ -15,7 +15,7 @@ module.exports = {
       create_uid: { type: INTEGER, allowNull: false }, // 圈主 的 uid
       create_name: { type: STRING, allowNull: false }, // 圈主 的  name
       name: { type: STRING( 19 ), allowNull: false }, // 圈子 名称
-      content: { type: STRING( 99 ), allowNull: true, defaultValue: '还没有内容哦！' }, // 圈子的 内容
+      content: { type: STRING( 99 ), allowNull: true }, // 圈子的 内容
       target: { type: STRING( 19 ), allowNull: true }, // 圈主 设定的目标哦
       description: { type: STRING( 49 ), allowNull: true }, // 描述，长度49字符
       remark: { type: STRING( 19 ), allowNull: true }, // 备注， 长度应该不长，限制19

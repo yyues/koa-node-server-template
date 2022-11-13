@@ -14,7 +14,7 @@ module.exports = {
       id: { type: UUID, primaryKey: true, defaultValue: UUIDV4 }, // 用户 uid
       create_uid: { type: INTEGER, allowNull: true }, // 创建人 uid
       create_url: { type: STRING, allowNull: true }, //创建 uid 的头像
-      name: { type: STRING( 16 ), allowNull: true, defaultValue: '系统默认' }, // 任务名称，可以没有，但一定要有任务内容
+      name: { type: STRING( 16 ), allowNull: true }, // 任务名称，可以没有，但一定要有任务内容
       content: { type: STRING( 49 ), allowNull: true }, // 任务内容，长度限制49个字符
       long_content: { type: STRING( 99 ), allowNull: true }, // 长任务内容， 长度较普通提高50至99字符
       level: { type: INTEGER, defaultValue: 0 }, // 任务优先级，数字越大表明优先级最高

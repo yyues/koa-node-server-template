@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up( queryInterface, Sequelize ) {
     /**
      * Add altering commands here.
      *
@@ -50,12 +50,12 @@ module.exports = {
         },
       },// 已完成打卡人的 uid 集合
       finished_count: { type: INTEGER, defaultValue: 0 }, // 打卡数量
-      content: { type: STRING( 99 ), allowNull: false, defaultValue: '还没有内容哦！' }, //  内容
+      content: { type: STRING( 99 ), allowNull: true, }, //  内容
       status: { type: STRING( 10 ), defaultValue: 'running' }, // 状态， 进行，完成，过期
       is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
       is_delay: { type: BOOLEAN, defaultValue: false }, // 是否延期， 可以延迟打卡
       execute_time: { type: DATE( 6 ), allowNull: true, defaultValue: new Date() }, // 任务的执行时间，前期可不做要求
-      deadline:  { type: DATE( 6 ), allowNull: true, defaultValue: new Date() }, // 截止时间
+      deadline: { type: DATE( 6 ), allowNull: true, defaultValue: new Date() }, // 截止时间
       create_time: DATE( 6 ),
       update_time: DATE( 6 ),
     }, {
@@ -67,7 +67,7 @@ module.exports = {
     } );
   },
 
-  async down (queryInterface, Sequelize) {
+  async down( queryInterface, Sequelize ) {
     /**
      * Add reverting commands here.
      *
