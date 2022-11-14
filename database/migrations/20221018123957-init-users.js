@@ -8,7 +8,7 @@ module.exports = {
     await queryInterface.createTable( 'users', {
       uid: { type: INTEGER( 6 ), primaryKey: true, autoIncrement: true }, // 用户 uid
       user_name: STRING( 30 ), // 用户 账号名称
-      user_phone: { type: INTEGER( 11 ) }, // 用户授权手机号
+      user_phone: { type: STRING( 16 ),}, // 用户授权手机号
       avatar_url: STRING, // 用户 头像连接
       login_status: {
         type: BOOLEAN,
