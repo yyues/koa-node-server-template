@@ -31,7 +31,7 @@ class CircleController extends Controller {
         [Op.or]: [
           { create_uid: uid },
           {
-            current_uid: {
+            member_uid: {
               [Op.like]: '%' + uid,
             }
           }
@@ -176,7 +176,7 @@ class CircleController extends Controller {
         ...param,
         [Op.or]: [
           { create_uid: uid },
-          // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
+          // sequelize.where( sequelize.fn( 'like', sequelize.col( 'member_uid' ) ), uid.toString() )
           {
             member_uid: {
               [Op.like]: '%' + uid,
