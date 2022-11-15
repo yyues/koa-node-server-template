@@ -261,13 +261,15 @@ class todoController extends Controller {
     const id = ctx.request.body.id
     if ( !id ) return this.error( 'id不存在', [] )
     // 接受邀请 ，表示新建一条数据，存在关联的数据
-    const { current_uid, current_url, max_number, team_number } = await ctx.model.Todo.findOne( {
+    const { current_uid, current_url, max_number, team_number, create_uid } = await ctx.model.Todo.findOne( {
       where: {
         id,
         is_delete: false
       }
     } )
-    if ( team_number >= max_number ) return this.error( '成员已满', [] )
+    if ( create_uid === uid ) return this.error( '无需加入！', [] )
+    if ( current_uid.includes( uid.toString() ) ) return this.error( '已加入！', [] )
+    if ( team_number >= max_number ) return this.error( '成员已满！', [] )
     // 不再新建 一条数据 而是更新用户当前的 成员信息
     current_uid.push( uid )
     current_url.push( avatar_url )
