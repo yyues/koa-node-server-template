@@ -70,3 +70,6 @@ CREATE DATABASE `wx-todo` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci';
 #### 6 重新安装 `npm i diagnostics_channel`
 
 #### 至此完成，项目能正常允许
+
+
+第一次还是要给文件夹的权限的

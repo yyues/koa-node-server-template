@@ -38,7 +38,7 @@ module.exports = appInfo => {
       port: 3306,
       database: 'wx-todo',
       username: 'root',
-      password: '123456',
+      password: '123456', // 修改线上数据库的密码在这修改
     },
   };
 
