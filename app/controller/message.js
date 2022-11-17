@@ -45,7 +45,7 @@ class StarController extends Controller {
     const data = rows.map( i => {
       return {
         ...i.toJSON(),
-        CanIdo: i.create_uid == uid,
+        CanIdo: i.to_uid == uid,
         // res,
       }
     } )

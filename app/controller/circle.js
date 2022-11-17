@@ -99,7 +99,8 @@ class CircleController extends Controller {
       ...res.toJSON(),
       create_url: avatar_url,
       is_current_user: res.create_uid === uid,
-      publish_time: this.moment( res.publish_time ).format( 'YYYY-MM-DD' )
+      publish_time: this.moment( res.publish_time ).format( 'YYYY-MM-DD' ),
+      IJoin: res.member_uid.includes(uid.toString())
     } )
   }
 
@@ -172,9 +173,9 @@ class CircleController extends Controller {
     const { ctx } = this
     const status = ctx.query.status
     const { Op } = this.app.Sequelize
+    const sequelize = this.app.Sequelize
     const { uid } = await this.currentUser()
     const param = {
-      create_uid: uid,
       is_delete: false,
     }
     if ( status ) param.status = status
@@ -183,10 +184,9 @@ class CircleController extends Controller {
         ...param,
         [Op.or]: [
           { create_uid: uid },
-          // sequelize.where( sequelize.fn( 'like', sequelize.col( 'member_uid' ) ), uid.toString() )
           {
             member_uid: {
-              [Op.like]: '%' + uid,
+              [Op.like]: `%${ uid }%`
             }
           }
           //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
@@ -197,7 +197,8 @@ class CircleController extends Controller {
     const rows = res.map( i => {
       return {
         ...i.toJSON(),
-        publish_time: this.moment( i.publish_time ).format( 'YYYY-MM-DD' )
+        publish_time: this.moment( i.publish_time ).format( 'YYYY-MM-DD' ),
+        is_current_user: i.create_uid == uid
       }
     } )
     this.success( rows )
@@ -228,9 +229,9 @@ class CircleController extends Controller {
     } )
     if ( create_uid === uid ) return this.error( '自己的不能加入！', [] )
     if ( current_number >= max_number ) return this.error( '人数超出限制啦', [] )
+    // 已经 在的就返回错误
+    if ( member_uid.includes( uid.toString() ) ) return this.error( '已经在圈子内！', [] )
     if ( type === 'receive' ) {
-      // 已经 在的就返回错误
-      if ( member_uid.includes( uid.toString() ) ) return this.error( '已经在圈子内！', [] )
       //   接受邀请的可以直接加入
       member_uid.push( uid )
       member_avatar.push( avatar_url )
