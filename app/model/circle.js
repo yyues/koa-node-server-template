@@ -16,7 +16,7 @@ module.exports = app => {
       type: STRING,
       allowNull: true,
       get() {
-        return this.getDataValue( 'member_avatar' ) ? this.getDataValue( 'labels' ).split( ';' ) : [];
+        return this.getDataValue( 'member_avatar' ) ? this.getDataValue( 'member_avatar' ).split( ';' ) : [];
       },
       set( val = [] ) {
         this.setDataValue( 'member_avatar', val.join( ';' ) );
@@ -26,7 +26,7 @@ module.exports = app => {
       type: STRING,
       allowNull: true,
       get() {
-        return this.getDataValue( 'member_uid' ) ? this.getDataValue( 'labels' ).split( ';' ) : [];
+        return this.getDataValue( 'member_uid' ) ? this.getDataValue( 'member_uid' ).split( ';' ) : [];
       },
       set( val = [] ) {
         this.setDataValue( 'member_uid', val.join( ';' ) );

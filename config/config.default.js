@@ -34,11 +34,11 @@ module.exports = appInfo => {
     // }
     sequelize: {
       dialect: 'mysql',
-      host: '127.0.0.1',
+      host: '43.139.159.212',
       port: 3306,
       database: 'wx-todo',
       username: 'root',
-      password: '123456', // 修改线上数据库的密码在这修改
+      password: 'yy926983', // 修改线上数据库的密码在这修改
     },
   };
 

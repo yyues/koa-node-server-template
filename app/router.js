@@ -27,7 +27,8 @@ module.exports = app => {
   router.post( '/circle/save', controller.circle.save );
   router.post( '/circle/delete', controller.circle.delete );
   router.get( '/circle/find', controller.circle.findOne );
-  router.post( '  /circle/join', controller.circle.join );
+  router.post( '/circle/join', controller.circle.join );
+  router.post( '/circle/agree', controller.circle.agree );
 
   //  动态相关的接口
   router.get( '/square/getList', controller.square.getList );
@@ -38,6 +39,7 @@ module.exports = app => {
   router.get( '/star/give', controller.star.Star );
   router.get( '/star/cancel', controller.star.noStar );
   // 消息
+  router.get( '/message/getList', controller.message.getList );
   router.get( '/message/cancel', controller.message.cancel );
   router.get( '/message/findOne', controller.message.findOne );
   router.get( '/message/findAll', controller.message.findAll );

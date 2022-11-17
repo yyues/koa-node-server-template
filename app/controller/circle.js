@@ -11,7 +11,8 @@ class CircleController extends Controller {
       page: { type: 'string', required: true },
       limit: { type: 'string', required: true },
       keyword: { type: 'string', required: false },
-    };
+      status: { type: 'string', required: true },
+    }
     // 校验  参数
     const val = this.Validate( rules, ctx.query )
     if ( !val.status ) {
@@ -21,13 +22,19 @@ class CircleController extends Controller {
     }
     const { uid } = await this.currentUser()
     const { page, limit, keyword, status } = ctx.query
-    const { count, rows } = await ctx.model.Circle.findAndCountAll( {
-      where: {
-        is_delete: false,
-        status,
-        content: {
-          [Op.like]: '%' + keyword
-        },
+    let param = {
+      is_delete: false,
+      status,
+      content: {
+        [Op.like]: '%' + keyword
+      },
+      publish_time: {
+        [Op.lte]: new Date().getTime(),
+      }
+    }
+    if ( status !== 'published' ) {
+      param = {
+        ...param,
         [Op.or]: [
           { create_uid: uid },
           {
@@ -37,10 +44,10 @@ class CircleController extends Controller {
           }
           //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
         ],
-        publish_time: {
-          [Op.lte]: new Date().getTime(),
-        }
-      },
+      }
+    }
+    const { count, rows } = await ctx.model.Circle.findAndCountAll( {
+      where: param,
       order: [
         [ 'create_time' ],
       ],
@@ -199,21 +206,82 @@ class CircleController extends Controller {
 //  加入 邀请的话是直接进入的
   async join() {
     const ctx = this.ctx
+    // 获取 请求数据
     const { id, type } = ctx.request.body
-    const { uid, avatar_url } = await this.currentUser()
-    if ( type ) {
-      return this.error( '需要主人同意才能加入', [] )
-    }
-    const { member_uid, member_avatar, current_number, max_number } = await ctx.model.Circle.findOne( {
+    // 获取用户数据
+    const { uid, avatar_url, user_name } = await this.currentUser()
+    // 查询详情
+    const {
+      member_uid,
+      member_avatar,
+      current_number,
+      max_number,
+      create_uid,
+      create_name,
+      name,
+      avatar_url: circle_url
+    } = await ctx.model.Circle.findOne( {
       where: {
         id,
         is_delete: false
       }
     } )
+    if ( create_uid === uid ) return this.error( '自己的不能加入！', [] )
     if ( current_number >= max_number ) return this.error( '人数超出限制啦', [] )
-    //  更新数据
-    member_uid.push( uid )
-    member_avatar.push( avatar_url )
+    if ( type === 'receive' ) {
+      // 已经 在的就返回错误
+      if ( member_uid.includes( uid.toString() ) ) return this.error( '已经在圈子内！', [] )
+      //   接受邀请的可以直接加入
+      member_uid.push( uid )
+      member_avatar.push( avatar_url )
+      await ctx.model.Circle.update( {
+        member_uid, member_avatar, current_number: current_number + 1
+      }, {
+        where: {
+          id, is_delete: false
+        }
+      } )
+      return this.success( { message: '加入成功！' } )
+    }
+    //   需要调用 message 表 给 圈主发一条消息
+    const [ user, created ] = await ctx.model.Message.findOrCreate( {
+      where: { create_uid: uid, to_uid: create_uid, form_id: id, status: 'sending', form_type: 'circle-join' },
+      defaults: {
+        create_uid: uid,
+        create_name: user_name,
+        to_uid: create_uid,
+        to_name: create_name,
+        content: user_name + '申请加入' + name,
+        form_id: id,
+        form_type: 'circle-join',
+        form_url: circle_url
+      }
+    } );
+    if ( created ) {
+      this.success( { message: '等待同意！' } )
+    } else {
+      this.error( '在申请中！', [] )
+    }
+  }
+
+  async agree() {
+    // 同意加入
+    const ctx = this.ctx
+    const { apply_id, id, msgId } = ctx.request.body
+    if ( !apply_id ) return this.error( '申请人id不存在', [] )
+    // 查询申请 加入的目标圈子信息
+    const res = await ctx.model.Circle.findOne( { where: { id, is_delete: false } } )
+    if ( !res ) return this.error( '圈子不存在！', [] )
+    // 查询 申请人的 用户信息
+    const userInfo = await ctx.model.User.findOne( { where: { uid: apply_id, is_delete: false } } )
+    if ( !userInfo ) return this.error( '用户信息获取错误', [] )
+    const { member_uid, member_avatar, current_number, max_number } = res
+    if ( current_number >= max_number ) return this.error( '人数超出限制啦', [] )
+    console.log( apply_id, member_uid, 'dddddd-----------------' )
+    if ( member_uid.includes( apply_id.toString() ) ) return this.error( '已经在圈子内！', [] )
+    //   接受邀请的可以直接加入
+    member_uid.push( apply_id )
+    member_avatar.push( userInfo.avatar_url )
     await ctx.model.Circle.update( {
       member_uid, member_avatar, current_number: current_number + 1
     }, {
@@ -221,6 +289,21 @@ class CircleController extends Controller {
         id, is_delete: false
       }
     } )
+    // 更新之前 发送的消息数据
+    await ctx.model.Message.update( { status: 'join-finish' }, { where: { id: msgId, is_delete: false } } )
+
+    // 然后给用户发一条消息
+    await ctx.model.Message.create( {
+      create_uid: res.create_uid,
+      create_name: res.create_name,
+      to_uid: apply_id,
+      to_name: userInfo.user_name,
+      content: '圈主 同意加入' + res.name,
+      form_id: id,
+      form_type: 'circle-join-success',
+      form_url: res.avatar_url
+    } )
+    return this.success( { message: '同意加入成功！' } )
   }
 }
 
