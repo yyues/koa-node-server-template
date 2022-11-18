@@ -107,37 +107,17 @@ class todoController extends Controller {
       remind_time: { type: 'string', required: false }, // 提醒时间 可以不需要
       task_type: { type: 'string', required: true }, // 任务类型，表示所属类型或者所属圈子
       task_from_id: { type: 'string', required: false }, // 归属的圈子id 需要 连表查询所属的数据
-      is_multiplayer: { type: 'boolean', required: false }, // 是否是多人任务
+      is_multiplayer: { type: 'boolean', required: true }, // 是否是多人任务
     }
-    const {
-      is_long_todo,
-      task_type,
-      id,
-      content,
-      level,
-      execute_time,
-      labels,
-      long_content,
-      task_from_id,
-      is_multiplayer,
-      is_cycle_todo,
-      task_cycle,
-      remind_time,
-      start_time,
-      end_time,
-      description
-    } = ctx.request.body
-    const { uid, avatar_url } = await this.currentUser()
-
-    console.log( ctx.request.body, '请求参数' )
-
-    if ( task_type !== 'person' ) {
+    const query = ctx.request.body
+    if ( query.task_type !== 'person' ) {
       // 一旦任务不属于个人，就需要传递 所属圈子 id
       rules.task_from_id.required = true
     }
-    if ( is_cycle_todo ) {
+    if ( query.is_cycle_todo ) {
       //  周期任务 ,必传周期时长，单位天
-      rules.task_cycle = { type: 'number', required: true, max: 1000 }
+      rules.task_cycle = { type: 'number' +
+          'v' ,required: true, max: 1000 }
     }
     // 校验  参数
     const val = this.Validate( rules, ctx.request.body )
@@ -146,72 +126,33 @@ class todoController extends Controller {
       this.error( '校验不通过', val.error )
       return
     }
+    const { uid, avatar_url } = await this.currentUser()
     // 设置数据库 保存参数
     const createData = {
       ...ctx.request.body,
-      // uid: (await this.currentUser()).uid, // 当前登录人uid
-      name: 'system auto name', // 系统自动生成的 name 名称
-      // content, // 任务内容
-      level, // 任务优先级，歧视是个数字
-      execute_time: this.moment( execute_time ).format( 'YYYY-MM-DD' ), // 任务的执行时间
-      task_type,// 任务类型 默认 person
-      labels: labels ?? [], // 动态标签,
-      is_current_user: true,
+      name: '我的待办',
       create_uid: uid,
       create_url: avatar_url,
-      remind_time,
-      start_time,
-      end_time,
-      is_long_todo,
-      description
     }
-    // 一旦任务不属于个人，就需要传递 所属圈子 id
-    if ( task_type !== 'person' ) {
-      createData.task_from_id = task_from_id
-    }
-
     //  但设定不是 多人任务
-    if ( is_multiplayer === false ) {
-      createData.is_multiplayer = false
+    if ( query.is_multiplayer === false ) {
       createData.is_can_invite = false // 不能邀请他人
       createData.max_number = 0
     }
-    //  周期任务 ,必传周期时长
-    if ( is_cycle_todo ) {
-      createData.task_cycle = task_cycle
-    }
     //  新增
-    if ( !id ) {
-      // 周期任务，批量创建，需要先创建一个父亲
-      if ( is_cycle_todo ) {
-        const data = await ctx.model.Todo.create( {
-          ...createData,
-          // 任务内容及长任务存储方式
-          content: is_long_todo ? '' : content,
-          long_content: is_long_todo ? content : '',
-          has_children: true,
-        } )
-        for (let i = 0; i < task_cycle; i++) {
-          await ctx.model.Todo.create( {
-            ...createData,
-            execute_time: this.moment( data.execute_time ).add( i, 'days' ).format( 'YYYY-MM-DD' ),
-            parent_id: data.id,
-            has_children: false,
-            is_can_invite: false, // 作为子任务，不能邀请他人参与
-          } )
-        }
-        this.success( data )
-        return
-      }
+    if ( !query.id ) {
+      // 周期任务
+      if ( query.is_cycle_todo ) return await this.AddCycleTodo( createData )
+      // 多人任务
+      if ( query.is_multiplayer ) return await this.AddMultiplayerTodo( createData )
       // 普通 创建
       const data = await ctx.model.Todo.create( {
         ...createData,
         // 任务内容及长任务存储方式
-        content: is_long_todo ? '' : content,
-        long_content: is_long_todo ? content : '',
-        create_uid: uid
+        content: query.is_long_todo ? '' : query.content,
+        long_content: query.is_long_todo ? query.content : '',
       } )
-      this.success( data )
+      this.success( { message: '新增待办成功！' } )
       return
     }
     // 修改
@@ -223,7 +164,7 @@ class todoController extends Controller {
         is_delete: false
       }
     } )
-    this.success( res );
+    this.success( { message: '修改待办成功！' } );
   }
 
   // 删除
@@ -375,8 +316,8 @@ class todoController extends Controller {
       return this.success( { message: '完成待办！' } )
     }
     // 是多人任务
-    const id_index = current_uid.findIndex( uid )
-    const url_index = current_url.findIndex( avatar_url )
+    const id_index = current_uid.findIndex( i => i === uid.toJSON() )
+    const url_index = current_url.findIndex( i => i === avatar_url )
     if ( id_index == -1 ) return this.error( '当前待办已完成', '' )
     current_uid.splice( id_index, 1 )
     current_url.splice( url_index, 1 )
@@ -405,6 +346,43 @@ class todoController extends Controller {
     // 然后应该做个 定时任务，在 两小时发一次提醒
     console.log( { formatTime } )
     this.success( [] )
+  }
+
+  // 新建多人任务处理逻辑 将 新增的 处理逻辑 拆分出来
+  async AddMultiplayerTodo( data ) {
+    const ctx = this.ctx
+    //   data 是前端 传递过且经过处理的参数
+    let current_uid = [], current_url = []
+    const { uid, avatar_url } = await this.currentUser()
+    // 新建 多人任务的时候， 自动把 自己的信息 添加到 team 里
+    current_uid.push( uid )
+    current_url.push( avatar_url )
+    await ctx.model.Todo.create( {
+      ...data,
+      current_uid,
+      current_url,
+      name: '我的多人待办'
+    } )
+    this.success( { message: '新建多人待办成功！' } )
+  }
+
+  // 新建 周期任务
+  async AddCycleTodo( data ) {
+    // 处理任务
+    const ctx = this.ctx
+
+    const days = Number( data.task_cycle ) !== NaN ? Number( data.task_cycle ) : 1
+    // 获得 初始执行时间
+    const initDate = data.execute_time
+    for (let i = 0; i < days; i++) {
+      // 是否应该将之后 每天的任务关联到 周期的第一个任务id 呢？？
+      await ctx.model.Todo.create( {
+        ...data,
+        execute_time: this.moment( initDate ).add( i, 'days' ).format( 'YYYY-MM-DD' ),
+        name: `周期待办，第${ i + 1 }天`
+      } )
+    }
+    this.success( { message: '创办周期待办成功' } )
   }
 }
 
