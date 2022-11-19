@@ -92,6 +92,31 @@ class todoController extends Controller {
     } )
   }
 
+  async findAll() {
+    const ctx = this.ctx;
+    const { Op } = this.app.Sequelize
+    const { uid } = await this.currentUser()
+    const { keyword } = ctx.query
+    const res = await ctx.model.Todo.findAll( {
+      where: {
+        content: {
+          [Op.like]: '%' + keyword + '%',
+        },
+        [Op.or]: [
+          { create_uid: uid },
+          {
+            current_uid: {
+              [Op.like]: '%' + uid,
+            }
+          }
+          //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
+        ],
+        is_delete: false
+      }
+    } )
+    this.success( res )
+  }
+
   // 新增 - 修改
   async save() {
     const { ctx } = this
@@ -116,8 +141,10 @@ class todoController extends Controller {
     }
     if ( query.is_cycle_todo ) {
       //  周期任务 ,必传周期时长，单位天
-      rules.task_cycle = { type: 'number' +
-          'v' ,required: true, max: 1000 }
+      rules.task_cycle = {
+        type: 'number' +
+          'v', required: true, max: 1000
+      }
     }
     // 校验  参数
     const val = this.Validate( rules, ctx.request.body )

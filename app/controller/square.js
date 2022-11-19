@@ -9,43 +9,40 @@ class SquareController extends Controller {
     const { ctx } = this;
     const { Op } = this.app.Sequelize
     const rules = {
-      page: { type: 'number', required: true },
-      limit: { type: 'number', required: true },
-      keyword: { type: 'number', required: false },
+      page: { type: 'string', required: true },
+      limit: { type: 'string', required: true },
+      keyword: { type: 'string', required: false },
     };
     // 校验  参数
-    const val = this.Validate( rules, ctx.param )
+    const val = this.Validate( rules, ctx.query )
     if ( !val.status ) {
       // 校验 不通过
       this.error( '校验不通过', val.error )
       return
     }
-    const { page, limit, keyword } = ctx.param
-    const res = await ctx.model.Square.findAndCountAll( {
+    const { page, limit, keyword } = ctx.query
+    const { uid } = await this.currentUser()
+    const { count, rows } = await ctx.model.Square.findAndCountAll( {
       where: {
         is_delete: false,
         content: {
-          [Op.like]: keyword
+          [Op.like]: '%' + keyword + '%'
         },
-        publish_time: {
-          [Op.lte]: new Date().getTime(),
-        },
-
+        is_private: false, // 查询不是私密的就行
       },
-      order: [
-        [ 'create_time' ],
-      ],
-      offset: page,
-      limit
+      order: [ 'create_time' ],
+      offset: Number( page ),
+      limit: Number( limit ),
     } )
-    // 需要再对数据进行处理
-    const data = res.map( async i => {
+    //  对 数据里 的 发布时间 进行处理了
+    const data = rows.map( i => {
       return {
-        ...i,
-        is_current_user: (await this.currentUser()).uid === i.uid
+        ...i.toJSON(),
+        is_current_user: uid === i.create_uid,
       }
     } )
-    this.success( data )
+    this.success( { count, rows: data } )
+
   }
 
   async findOne() {
@@ -76,31 +73,36 @@ class SquareController extends Controller {
   // 新增 - 修改
   async save() {
     const { ctx } = this
-    const { uid } = await this.currentUser()
     const rules = {
       content: { type: 'string', required: true },
     }
+    // 校验  参数
+    const val = this.Validate( rules, ctx.request.body )
+    if ( !val.status ) {
+      // 校验 不通过
+      this.error( '校验不通过', val.error )
+      return
+    }
+    const { uid, avatar_url,user_name } = await this.currentUser()
     const { content, id } = ctx.request.body
-    let res
     if ( !id ) {
       // 新增
-      res = await ctx.model.Square.create( {
+      await ctx.model.Square.create( {
         ...ctx.request.body,
-        uid
+        create_uid: uid,
+        create_url: avatar_url,
+        create_name: user_name
       } )
-      this.success( res )
+      this.success( { message: '发表成功！' } )
       return
     }
     // 修改
-    res = await ctx.model.Square.update( {
+    await ctx.model.Square.update( {
       ...ctx.request.body,
     }, {
-      where: {
-        id,
-        is_delete:false
-      }
+      where: { id, is_delete: false }
     } )
-    this.success( res )
+    this.success( { message: '修改成功！' } )
   }
 
   // 删除

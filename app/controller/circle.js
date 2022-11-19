@@ -100,7 +100,7 @@ class CircleController extends Controller {
       create_url: avatar_url,
       is_current_user: res.create_uid === uid,
       publish_time: this.moment( res.publish_time ).format( 'YYYY-MM-DD' ),
-      IJoin: res.member_uid.includes(uid.toString())
+      IJoin: res.member_uid.includes( uid.toString() )
     } )
   }
 
@@ -255,7 +255,8 @@ class CircleController extends Controller {
         content: user_name + '申请加入' + name,
         form_id: id,
         form_type: 'circle-join',
-        form_url: circle_url
+        form_url: circle_url,
+        read_only: true
       }
     } );
     if ( created ) {
@@ -291,7 +292,9 @@ class CircleController extends Controller {
       }
     } )
     // 更新之前 发送的消息数据
-    await ctx.model.Message.update( { status: 'join-finish' }, { where: { id: msgId, is_delete: false } } )
+    await ctx.model.Message.update( {
+      status: 'join-finish', read_only: true
+    }, { where: { id: msgId, is_delete: false } } )
 
     // 然后给用户发一条消息
     await ctx.model.Message.create( {

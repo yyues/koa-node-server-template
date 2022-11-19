@@ -15,6 +15,7 @@ module.exports = app => {
   router.post( '/todo/save', controller.todo.save );
   router.post( '/todo/delete', controller.todo.delete );
   router.get( '/todo/find', controller.todo.findOne );
+  router.get( '/todo/findAll', controller.todo.findAll );
   router.post( '/todo/receive-invite', controller.todo.receiveInvite );
   router.post( '/todo/send-invite', controller.todo.sendInvite );
   router.get( '/todo/get-by-date', controller.todo.getTodoByDate );
