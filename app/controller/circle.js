@@ -256,7 +256,7 @@ class CircleController extends Controller {
         form_id: id,
         form_type: 'circle-join',
         form_url: circle_url,
-        read_only: true
+        read_only: false
       }
     } );
     if ( created ) {
@@ -305,7 +305,8 @@ class CircleController extends Controller {
       content: '圈主 同意加入' + res.name,
       form_id: id,
       form_type: 'circle-join-success',
-      form_url: res.avatar_url
+      form_url: res.avatar_url,
+      read_only: true
     } )
     return this.success( { message: '同意加入成功！' } )
   }
