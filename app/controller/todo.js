@@ -187,7 +187,7 @@ class todoController extends Controller {
       ...ctx.request.body
     }, {
       where: {
-        id,
+        id: query.id,
         is_delete: false
       }
     } )
