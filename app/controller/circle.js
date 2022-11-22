@@ -20,13 +20,14 @@ class CircleController extends Controller {
       this.error( '校验不通过', val.error )
       return
     }
+    // 限制创建数量，每个人最多 19个吧
     const { uid } = await this.currentUser()
     const { page, limit, keyword, status } = ctx.query
     let param = {
       is_delete: false,
       status,
       content: {
-        [Op.like]: '%' + keyword
+        [Op.like]: '%' + keyword + '%'
       },
       publish_time: {
         [Op.lte]: new Date().getTime(),
@@ -39,7 +40,7 @@ class CircleController extends Controller {
           { create_uid: uid },
           {
             member_uid: {
-              [Op.like]: '%' + uid,
+              [Op.like]: '%' + uid + '%',
             }
           }
           //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
@@ -111,6 +112,29 @@ class CircleController extends Controller {
     const rules = {
       name: { type: 'string', required: true },
       avatar_url: { type: 'string', required: true }
+    }
+    const { Op } = this.app.Sequelize
+    // 限制个人 最大圈子数量
+    const count = await ctx.model.Circle.count( {
+      where: {
+        [Op.or]: [
+          { create_uid: uid },
+          {
+            member_uid: {
+              [Op.like]: '%' + uid + '%',
+            }
+          }
+          //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
+        ],
+      }
+    } )
+    if ( count >= 19 ) return this.error( '个人最多19个圈子哦', [] )
+    // 校验  参数
+    const val = this.Validate( rules, ctx.request.body )
+    if ( !val.status ) {
+      // 校验 不通过
+      this.error( '校验不通过', val.error )
+      return
     }
     const { name, avatar_url, id, publish_time } = ctx.request.body
     let res
