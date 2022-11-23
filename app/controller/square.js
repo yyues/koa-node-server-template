@@ -76,6 +76,9 @@ class SquareController extends Controller {
     const rules = {
       content: { type: 'string', required: true },
     }
+    // 校验  敏感 字符
+    const isSensitive = await  this.service.mp.checkIsSensitive(content)
+    if(isSensitive) return this.error('含有敏感字符',[])
     // 校验  参数
     const val = this.Validate( rules, ctx.request.body )
     if ( !val.status ) {

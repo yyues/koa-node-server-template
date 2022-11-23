@@ -3,6 +3,31 @@
 const Controller = require( '../core/base_controller' );
 
 class todoController extends Controller {
+  // 编写定时器
+  todoTimeout( id, type = 'get', timer ) {
+    // 限制 数量吧
+    const map = new Map()
+    // 先取
+    if ( type === 'get' ) {
+      if ( map.has( id ) ) return map.get( id )
+      map.set( id, null )
+      return null
+    }
+    // 再存
+    if ( type === 'set' ) {
+      map.set( id, timer )
+    }
+    //  删除
+    if ( type === 'delete' ) {
+      const time = map.get( id )
+      if ( time ) {
+        time.clearTimeout()
+      }
+      // 然后 删除
+      map.delete( id )
+    }
+
+  }
   // 查询列表接口---- get
   async getList() {
     const ctx = this.ctx;
@@ -40,7 +65,7 @@ class todoController extends Controller {
           // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
           {
             current_uid: {
-              [Op.like]: '%' + uid,
+              [Op.like]: '%' + uid + '%',
             }
           }
           //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
@@ -183,39 +208,24 @@ class todoController extends Controller {
       return
     }
     // 修改
-    const res = await ctx.model.Todo.update( {
-      ...ctx.request.body
-    }, {
-      where: {
-        id: query.id,
-        is_delete: false
-      }
-    } )
-    this.success( { message: '修改待办成功！' } );
+    await this.change( query )
   }
 
   // 删除
   async delete() {
     const { ctx } = this
     const id = ctx.request.body.id
-    if ( !id ) {
-      this.error( 'id不存在', [] )
-      return
-    }
+    if ( !id ) return this.error( 'id不存在', [] )
+    // 需要 判断一下 是不是 有没有设置提醒， 设置的话删除掉
     const res = await ctx.model.Todo.findOne( {
-      where: {
-        id,
-        is_delete: false
-      }
+      where: { id, is_delete: false }
     } )
-    if ( !res ) {
-      this.error( '数据库查无数据', [] )
-      return
+    if ( !res ) return this.error( '数据库查无数据', [] )
+    if ( res.is_exist_remind && this.moment().isBefore( res.remind_time ) ) {
+      //  设置 定时器 了 但是 还没有执行   这时候需要移除掉定时器
+      this.todoTimeout( id, 'delete' )
     }
-    await ctx.model.Todo.update( {
-      ...res,
-      is_delete: true
-    }, {
+    await ctx.model.Todo.update( { is_delete: true }, {
       where: { id }
     } )
     this.success( { message: '删除成功！' } )
@@ -282,7 +292,7 @@ class todoController extends Controller {
           // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
           {
             current_uid: {
-              [Op.like]: '%' + uid,
+              [Op.like]: '%' + uid + '%',
             }
           }
           //  使用 like 来查找 数据库的字段 勉强实现查询全部的接口
@@ -321,21 +331,17 @@ class todoController extends Controller {
     const { uid, avatar_url } = await this.currentUser()
     const id = ctx.request.body.id
     if ( !id ) return this.error( 'id不存在', [] )
-    //  判断是不是多人任务， 先判断不是的
-    const {
-      is_multiplayer,
-      current_uid,
-      current_url,
-      team_number,
-      finish_number,
-      finish_uid,
-      finish_url,
-      task_status
-    } = await ctx.model.Todo.findOne( {
+    const res = await ctx.model.Todo.findOne( {
       where: { id, is_delete: false }
     } )
-    if ( !is_multiplayer ) {
-      if ( task_status !== 'running' ) return this.error( '状态错误', '' )
+    // 新增了定时器 ，所以 需要完善关于 定时器的逻辑
+    if ( res.is_exist_remind && this.moment().isBefore( res.remind_time ) ) {
+      //  设置 定时器 了 但是 还没有执行
+      //   这时候需要移除掉定时器
+      this.todoTimeout( id, 'delete' )
+    }
+    if ( !res.is_multiplayer ) {
+      if ( res.task_status !== 'running' ) return this.error( '状态错误', '' )
       //   如果不是 多人任务，直接修改状态
       await ctx.model.Todo.update( {
         task_status: 'finish'
@@ -343,44 +349,52 @@ class todoController extends Controller {
       return this.success( { message: '完成待办！' } )
     }
     // 是多人任务
-    const id_index = current_uid.findIndex( i => i === uid.toJSON() )
-    const url_index = current_url.findIndex( i => i === avatar_url )
-    if ( id_index == -1 ) return this.error( '当前待办已完成', '' )
-    current_uid.splice( id_index, 1 )
-    current_url.splice( url_index, 1 )
-    finish_url.push( avatar_url )
-    finish_uid.push( uid )
-    await ctx.model.Todo.update( {
-      current_uid,
-      current_url,
-      team_number: team_number - 1,
-      finish_number: finish_number + 1,
-      finish_uid,
-      finish_url
-    }, { where: { id, id_delete: false } } )
+    const data = this.oneOfTeamFinish( res.toJSON(), { uid, avatar_url }, 'todo' )
+    if ( !data ) return this.error( '数据处理错误', [] )
+    await ctx.model.Todo.update( data, { where: { id, id_delete: false } } )
     this.success( { message: '完成多人待办' } )
   }
 
-  // 设置提醒时间
+  // 设置提醒时间----- 这种要靠    前端 过滤掉没有设置定时提醒的任务的----
   async setClockTimeById() {
     const ctx = this.ctx
     const { id, remind_time } = ctx.request.body
-    const formatTime = this.moment( remind_time ).format( 'YYYY-MM-DD HH:mm' )
-    await ctx.model.Todo.update( {
-      remind_time: formatTime,
-      is_exist_remind: true
-    }, { where: { id, is_delete: false } } )
-    // 然后应该做个 定时任务，在 两小时发一次提醒
-    console.log( { formatTime } )
-    this.success( [] )
+    // 先计算差值 diff 为 提醒时间 距 限制还有多久
+    const diff = new Date( remind_time ).getTime() - new Date().getTime()
+    console.log( diff, '时间差' )
+    // 对 小于 15 分钟内 的提醒时间不做校验
+    if ( diff < 0 ) return this.error( '待办已过期！', [] )
+    if ( diff < 1000 * 60 * 15 ) return this.error( '待办时间不足15分钟', [] )
+    // 直接更新数据 -- 然后绑定计时器
+    await ctx.model.Todo.update( { remind_time, is_exist_remind: true }, { where: { id, is_delete: false } } )
+    // 设置 定时器， 但这个定时器 很有可能是 会 没有执行就被销毁了
+    let timer
+    // 在 设定前   5分钟执行
+    timer = setTimeout( async () => {
+      // 定时器到期后
+      const todoInfo = await ctx.model.Todo.findOne( { where: { id, is_delete: false } } )
+      // 走 微信 服务发送数据
+      const data = await this.sendTodoMsg( todoInfo.toJSON(), remind_time, '待办还有5分钟即将到期！' )
+
+      // 失败处理 --- 先不考虑
+
+      // 移除 定时器 map 中的 对应定时器
+      this.todoTimeout( id, 'delete' )
+
+    }, diff - 5 * 60 * 1000 )
+    // 将 定时器 存储起来
+    this.todoTimeout( id, 'set', timer )
+    // 算是个异步任务，
+    this.success( { message: '设置提醒成功！' } )
   }
 
   // 新建多人任务处理逻辑 将 新增的 处理逻辑 拆分出来
   async AddMultiplayerTodo( data ) {
     const ctx = this.ctx
+    const service = this.service
     //   data 是前端 传递过且经过处理的参数
     let current_uid = [], current_url = []
-    const { uid, avatar_url } = await this.currentUser()
+    const { uid, avatar_url, openid } = await this.currentUser()
     // 新建 多人任务的时候， 自动把 自己的信息 添加到 team 里
     current_uid.push( uid )
     current_url.push( avatar_url )
@@ -391,6 +405,25 @@ class todoController extends Controller {
       name: '我的多人待办'
     } )
     this.success( { message: '新建多人待办成功！' } )
+  }
+
+  // 将修改的 逻辑拆分出来
+  async change( param ) {
+    // param 为 接口的传递参数
+    const ctx = this.ctx
+    const { id } = param
+    const res = await ctx.model.Todo.findOne( { where: { id, is_delete: false } } )
+    if ( !res ) return this.error( '数据不存在', [] )
+    // 校验 是否有定时器存在
+    if ( res.is_exist_remind && this.moment().isBefore( res.remind_time ) ) {
+      //  设置 定时器 了 但是 还没有执行
+      //   这时候需要移除掉定时器
+      this.todoTimeout( id, 'delete' )
+    }
+    await ctx.model.Todo.update( param, {
+      where: { id: param.id, is_delete: false }
+    } )
+    this.success( { message: '修改待办成功！' } );
   }
 
   // 新建 周期任务
