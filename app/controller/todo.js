@@ -148,16 +148,6 @@ class todoController extends Controller {
     const rules = {
       id: { type: 'string', required: false }, // 有ID表明修改，没有新增
       content: { type: 'string', required: true },
-      long_content: { type: 'string', required: false },
-      is_long_todo: { type: 'boolean', required: false },
-      level: { type: 'number', required: true }, // 任务优先级，越大等级越高
-      execute_time: { type: 'string', required: true },// 执行的时间
-      is_cycle_todo: { type: 'boolean', required: false }, // 是否是 周期任务
-      labels: { type: 'array', required: false },
-      remind_time: { type: 'string', required: false }, // 提醒时间 可以不需要
-      task_type: { type: 'string', required: true }, // 任务类型，表示所属类型或者所属圈子
-      task_from_id: { type: 'string', required: false }, // 归属的圈子id 需要 连表查询所属的数据
-      is_multiplayer: { type: 'boolean', required: true }, // 是否是多人任务
     }
     const query = ctx.request.body
     if ( query.task_type !== 'person' ) {
