@@ -120,7 +120,7 @@ class UpdateCache extends Subscription {
       type: 'all', // 指定所有的 worker 都需要执行
       // 每天凌晨 四点更新
       cron: '0 0 4 * * ?',
-      immediate: true
+      // immediate: true
     };
   }
 
