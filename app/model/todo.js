@@ -90,6 +90,7 @@ module.exports = app => {
     delay_time: { type: STRING, allowNull: true },// 逾期时间
     bg_url: { type: STRING, allowNull: true }, // 我可以有一个背景图片
     primary_color: { type: STRING, allowNull: true }, // 同样可以有一个 主体颜色，
+    icon_type: { type: STRING, allowNull: true }, // 展示图标的类型
     is_delete: { type: BOOLEAN, defaultValue: false }, // 伪删除，正常状态是false，删除是true
     create_time: DATE,
     update_time: DATE,

@@ -28,6 +28,7 @@ class todoController extends Controller {
     }
 
   }
+
   // 查询列表接口---- get
   async getList() {
     const ctx = this.ctx;
@@ -145,29 +146,7 @@ class todoController extends Controller {
   // 新增 - 修改
   async save() {
     const { ctx } = this
-    const rules = {
-      id: { type: 'string', required: false }, // 有ID表明修改，没有新增
-      content: { type: 'string', required: true },
-    }
     const query = ctx.request.body
-    if ( query.task_type !== 'person' ) {
-      // 一旦任务不属于个人，就需要传递 所属圈子 id
-      rules.task_from_id.required = true
-    }
-    if ( query.is_cycle_todo ) {
-      //  周期任务 ,必传周期时长，单位天
-      rules.task_cycle = {
-        type: 'number' +
-          'v', required: true, max: 1000
-      }
-    }
-    // 校验  参数
-    const val = this.Validate( rules, ctx.request.body )
-    if ( !val.status ) {
-      // 校验 不通过
-      this.error( '校验不通过', val.error )
-      return
-    }
     const { uid, avatar_url } = await this.currentUser()
     // 设置数据库 保存参数
     const createData = {
