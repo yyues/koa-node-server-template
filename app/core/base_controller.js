@@ -66,7 +66,7 @@ class BaseController extends Controller {
     // 重新获取token
     const { access_token } = await this.service.mp.getToken()
     // 微信 订阅消息服务端接口
-    console.log('我真的干活了，在发布订阅消息了啊')
+    console.log( '我真的干活了，在发布订阅消息了啊' )
     const url = `https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=${ access_token }`
     const param = {
       touser: openid,
@@ -95,9 +95,10 @@ class BaseController extends Controller {
     if ( type === 'todo' ) {
       const {
         current_uid, current_url, team_number, finish_number, finish_uid, finish_url,
+        task_status
       } = data
       const { uid, avatar_url } = userInfo
-      const id_index = current_uid.findIndex( i => i === uid.toJSON() )
+      const id_index = current_uid.findIndex( i => i === uid.toString() )
       const url_index = current_url.findIndex( i => i === avatar_url )
       if ( id_index === -1 || url_index === -1 ) return null
       current_uid.splice( id_index, 1 )
@@ -111,7 +112,8 @@ class BaseController extends Controller {
         team_number: team_number - 1,
         finish_number: finish_number + 1,
         finish_uid,
-        finish_url
+        finish_url,
+        task_status: current_uid.length === 0 ? 'finish' : task_status
       }
     }
   }

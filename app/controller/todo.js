@@ -257,7 +257,12 @@ class todoController extends Controller {
       where: {
         ...param,
         [Op.or]: [
-          { create_uid: uid },
+          {
+            create_uid: uid,
+            finish_uid: {
+              [Op.notLike]: '%' + uid + '%',
+            }
+          },
           // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
           {
             current_uid: {
@@ -320,7 +325,7 @@ class todoController extends Controller {
     // 是多人任务
     const data = this.oneOfTeamFinish( res.toJSON(), { uid, avatar_url }, 'todo' )
     if ( !data ) return this.error( '数据处理错误', [] )
-    await ctx.model.Todo.update( data, { where: { id, id_delete: false } } )
+    await ctx.model.Todo.update( data, { where: { id, is_delete: false } } )
     this.success( { message: '完成多人待办' } )
   }
 
