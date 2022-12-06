@@ -1,41 +1,75 @@
-<!--
- * @Author: your name
- * @Date: 2021-07-20 10:09:26
- * @LastEditTime: 2021-07-22 10:11:05
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \Base-Koa\README.md
--->
+### Wx-todo
 
-# YY_BASE_KOA_JS
+本意是做个node版本的后端服务，主要是实现一个`todoList` 的界面，参考小程序 `主线程`的界面来描述对应的接口及其说明
 
-##这里是 yyue 写的一部基础框架
+使用说明
 
-#安装
+- 请在本地准备 `wx-todo`的数据库
 
-- npm i
+#### 数据库创建教程
 
-#运行基础程序
+本项目采用的 是  `egg-sequelize` 及 `sequelize-li` 来实现的数据库表简历
 
-- npm start
+新建users 表
 
-#功能介绍
+```javascript
+npx sequelize migration:generate --name=init-users
+```
 
-- 实现了文件上传接口，
-- 封装了验证码
-- 将整个功能模块合在一起，作为 components 来实现具体的功能，结构可能会有些复杂,但我还是分开了，嘿嘿
-- 提供了密码加密和 token 生成，校验模式
-- 实现登录拦截功能，不登陆就没法进行其他请求
-- 短语验证可以实现，基于阿里云的
-- 对于返回数据继续了基本的封装，后续可以改进
+执行完后会在 `database/migrations` 目录下生成一个 migration 文件(`${timestamp}-init-users.js`)，
 
-#待完成功能
+```javascript
+'use strict';
 
-- 这里是列表文本文件上传进行具体分类，主要途径是限制具体上传格式
-- 验证功能，这个功能我在 controller 进行了控制，但是拆分出来多少有一点不习惯
-- 基本配置如防止爬虫、减少请求次数、减缓服务器压力
-- 更新上传文件同名会顶替的问题
+module.exports = {
+  // 在执行数据库升级时调用的函数，创建 users 表
+  up: async (queryInterface, Sequelize) => {
+    const { INTEGER, DATE, STRING } = Sequelize;
+    await queryInterface.createTable('users', {
+      id: { type: INTEGER, primaryKey: true, autoIncrement: true },
+      name: STRING(30),
+      age: INTEGER,
+      created_at: DATE,
+      updated_at: DATE,
+    });
+  },
+  // 在执行数据库降级时调用的函数，删除 users 表
+  down: async (queryInterface) => {
+    await queryInterface.dropTable('users');
+  },
+};
+```
 
-#对自己要求
+然后是 执行数据库变更
 
--完善整体操作逻辑，实现企业级的后端基本要求 -对于所用库的是否满足条件和其他性能
+```
+# 升级数据库
+npx sequelize db:migrate
+# 如果有问题需要回滚，可以通过 `db:migrate:undo` 回退一个变更
+# npx sequelize db:migrate:undo
+# 可以通过 `db:migrate:undo:all` 回退到初始状态
+# npx sequelize db:migrate:undo:all
+```
+数据库建立语句
+```
+CREATE DATABASE `wx-todo` CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci';
+```
+发布流程
+
+#### 1克隆 当前的项目
+
+#### 2删除git文件，然后 压缩上传到服务器
+
+#### 3npm install --production 执行安装命令
+
+大概率会有报错的
+
+#### 4 这时候有个报错，提示 `diagnostics_channel` 不存在,安装一下
+
+#### 5 这个时候还会有报错， 是 `egg-ci`缺失了，通过将本地的包上传到服务器
+#### 6 重新安装 `npm i diagnostics_channel`
+
+#### 至此完成，项目能正常允许
+
+
+第一次还是要给文件夹的权限的
