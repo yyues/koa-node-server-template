@@ -257,14 +257,15 @@ class todoController extends Controller {
       where: {
         ...param,
         [Op.or]: [
+          // 我创建的且不是多人的
           {
             create_uid: uid,
-            finish_uid: {
-              [Op.notLike]: '%' + uid + '%',
-            }
+            is_multiplayer: false,
+            task_status: task_status ? task_status : 'running'
           },
-          // sequelize.where( sequelize.fn( 'like', sequelize.col( 'current_uid' ) ), uid.toString() )
+          //
           {
+            is_multiplayer: true,
             current_uid: {
               [Op.like]: '%' + uid + '%',
             }
